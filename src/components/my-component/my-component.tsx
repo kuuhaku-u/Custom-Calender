@@ -203,7 +203,7 @@ export class MyComponent {
       </div>
     );
   };
-  renderOnly() {
+renderOnly() {
     return (
       <div onClick={() => (this.all = true)}>
         <idk-2 />
