@@ -7,6 +7,8 @@
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { CalendarEntry } from "./utils/calendar-entry";
 export namespace Components {
+    interface Idk2 {
+    }
     interface MyComponent {
         "dayNames": string[];
         "monthNames": string[];
@@ -14,6 +16,12 @@ export namespace Components {
     }
 }
 declare global {
+    interface HTMLIdk2Element extends Components.Idk2, HTMLStencilElement {
+    }
+    var HTMLIdk2Element: {
+        prototype: HTMLIdk2Element;
+        new (): HTMLIdk2Element;
+    };
     interface HTMLMyComponentElement extends Components.MyComponent, HTMLStencilElement {
     }
     var HTMLMyComponentElement: {
@@ -21,10 +29,13 @@ declare global {
         new (): HTMLMyComponentElement;
     };
     interface HTMLElementTagNameMap {
+        "idk-2": HTMLIdk2Element;
         "my-component": HTMLMyComponentElement;
     }
 }
 declare namespace LocalJSX {
+    interface Idk2 {
+    }
     interface MyComponent {
         "dayNames"?: string[];
         "monthNames"?: string[];
@@ -33,6 +44,7 @@ declare namespace LocalJSX {
         "showFillDays"?: boolean;
     }
     interface IntrinsicElements {
+        "idk-2": Idk2;
         "my-component": MyComponent;
     }
 }
@@ -40,6 +52,7 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            "idk-2": LocalJSX.Idk2 & JSXBase.HTMLAttributes<HTMLIdk2Element>;
             "my-component": LocalJSX.MyComponent & JSXBase.HTMLAttributes<HTMLMyComponentElement>;
         }
     }
