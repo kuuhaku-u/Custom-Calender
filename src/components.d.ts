@@ -9,11 +9,23 @@ import { CalendarEntry } from "./utils/calendar-entry";
 export namespace Components {
     interface Idk2 {
     }
+    interface Idk22 {
+        "hrFormat24": boolean;
+        "step": number;
+    }
     interface MyComponent {
         "dayNames": string[];
         "monthNames": string[];
         "showFillDays": boolean;
     }
+}
+export interface Idk22CustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLIdk22Element;
+}
+export interface MyComponentCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLMyComponentElement;
 }
 declare global {
     interface HTMLIdk2Element extends Components.Idk2, HTMLStencilElement {
@@ -21,6 +33,12 @@ declare global {
     var HTMLIdk2Element: {
         prototype: HTMLIdk2Element;
         new (): HTMLIdk2Element;
+    };
+    interface HTMLIdk22Element extends Components.Idk22, HTMLStencilElement {
+    }
+    var HTMLIdk22Element: {
+        prototype: HTMLIdk22Element;
+        new (): HTMLIdk22Element;
     };
     interface HTMLMyComponentElement extends Components.MyComponent, HTMLStencilElement {
     }
@@ -30,21 +48,28 @@ declare global {
     };
     interface HTMLElementTagNameMap {
         "idk-2": HTMLIdk2Element;
+        "idk-22": HTMLIdk22Element;
         "my-component": HTMLMyComponentElement;
     }
 }
 declare namespace LocalJSX {
     interface Idk2 {
     }
+    interface Idk22 {
+        "hrFormat24"?: boolean;
+        "onSelectedTimeEmitter"?: (event: Idk22CustomEvent<{ hour: string | number; minute: string | number; meridian: string }>) => void;
+        "step"?: number;
+    }
     interface MyComponent {
         "dayNames"?: string[];
         "monthNames"?: string[];
-        "onDayChanged"?: (event: CustomEvent<CalendarEntry>) => void;
-        "onMonthChanged"?: (event: CustomEvent<CalendarEntry>) => void;
+        "onDayChanged"?: (event: MyComponentCustomEvent<CalendarEntry>) => void;
+        "onMonthChanged"?: (event: MyComponentCustomEvent<CalendarEntry>) => void;
         "showFillDays"?: boolean;
     }
     interface IntrinsicElements {
         "idk-2": Idk2;
+        "idk-22": Idk22;
         "my-component": MyComponent;
     }
 }
@@ -53,6 +78,7 @@ declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
             "idk-2": LocalJSX.Idk2 & JSXBase.HTMLAttributes<HTMLIdk2Element>;
+            "idk-22": LocalJSX.Idk22 & JSXBase.HTMLAttributes<HTMLIdk22Element>;
             "my-component": LocalJSX.MyComponent & JSXBase.HTMLAttributes<HTMLMyComponentElement>;
         }
     }

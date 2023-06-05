@@ -3,7 +3,7 @@ import { CalendarEntry } from '../../utils/calendar-entry';
 import { Calendar } from '../../utils/calendar';
 @Component({
   tag: 'my-component',
-  styleUrl: 'my-component.css',
+  styleUrl: 'my-component.scss',
   shadow: true,
 })
 export class MyComponent {
@@ -99,13 +99,6 @@ export class MyComponent {
   switchToPreviousMonth = (): void => {
     const date = this.getValidDate();
     const lowerLimit = this.subDays(new Date(), 28).getMonth() + 1;
-    this.disableCrossForArrowForward = false;
-    if (lowerLimit >= date.month) {
-      this.disableCrossForArrowBackward = true;
-    }
-    if (this.disableCrossForArrowBackward) {
-      return;
-    }
     if (this.date.month !== 1) {
       this.date.month -= 1;
     } else {
@@ -117,17 +110,18 @@ export class MyComponent {
     }
     this.setCalendarDetails();
     this.monthChangedHandler(this.date);
+    this.disableCrossForArrowForward = false;
+    if (lowerLimit >= date.month) {
+      this.disableCrossForArrowBackward = true;
+    }
+    if (this.disableCrossForArrowBackward) {
+      return;
+    }
   };
   switchToNextMonth = (): void => {
     const date = this.getValidDate();
-    const upperLimit = this.addDays(new Date(), 61).getMonth() + 1;
-    this.disableCrossForArrowBackward = false;
-    if (upperLimit <= date.month) {
-      this.disableCrossForArrowForward = true;
-    }
-    if (this.disableCrossForArrowForward) {
-      return;
-    }
+    const upperLimit = this.addDays(new Date(), 61).getMonth()
+    ;
     if (this.date.month !== 12) {
       this.date.month += 1;
     } else {
@@ -137,6 +131,13 @@ export class MyComponent {
     delete this.date.day;
     this.setCalendarDetails();
     this.monthChangedHandler(this.date);
+    this.disableCrossForArrowBackward = false;
+    if (upperLimit <= date.month) {
+      this.disableCrossForArrowForward = true;
+    }
+    if (this.disableCrossForArrowForward) {
+      return;
+    }
   };
   getDigitClassNames = (day: number, month: number, year: number, index: number): string => {
     let classNameDigit = [];

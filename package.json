@@ -17,12 +17,30 @@
   "scripts": {
     "build": "stencil build --docs",
     "start": "stencil build --dev --watch --serve",
-    "test": "stencil test --spec --e2e",
+    "test": "stencil test --spec --e2e --coverage",
+    "unitTest": "stencil test --spec",
+    "e2eTest": "stencil test --e2e",
     "test.watch": "stencil test --spec --e2e --watchAll",
-    "generate": "stencil generate"
+    "generate": "stencil generate",
+    "init.wc": "ln -sf ../Makefile . && make init-wc && unlink Makefile",
+    "lint": "eslint src/**/*{.ts,.tsx}"
   },
   "dependencies": {
-    "@stencil/core": "^2.0.1"
+    "@stencil/core": "^2.21.0",
+    "@tec-registry/daisy": "^1.0.1",
+    "dotenv": "^16.0.3"
   },
-  "license": "MIT"
+  "devDependencies": {
+    "@stencil/eslint-plugin": "^0.4.0",
+    "@stencil/sass": "^2.0.3",
+    "@types/jest": "^27.0.3",
+    "@types/node": "^16.18.11",
+    "jest": "^27.4.5",
+    "jest-cli": "^27.4.5",
+    "puppeteer": "^10.0.0"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "@tec-registry:registry": "https://git.energytech-global.com/api/v4/projects/102/packages/npm/"
+  }
 }
