@@ -28,6 +28,7 @@
   "dependencies": {
     "@stencil/core": "^2.21.0",
     "@tec-registry/daisy": "^1.0.1",
+    "@tec-registry/nest-notification-modal-dialog": "^1.0.4",
     "dotenv": "^16.0.3"
   },
   "devDependencies": {

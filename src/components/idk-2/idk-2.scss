@@ -80,6 +80,8 @@ header {
 .dropdown-month-year {
   display: flex;
   justify-content: space-evenly;
+  position: relative;
+  top: 46px;
 }
 #month {
   max-height: 68px;

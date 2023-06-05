@@ -1,6 +1,7 @@
 import { Component, Prop, h, Watch, EventEmitter, State, Event, Host } from '@stencil/core';
 import { CalendarEntry } from '../../utils/calendar-entry';
 import { Calendar } from '../../utils/calendar';
+import '@tec-registry/nest-notification-modal-dialog';
 @Component({
   tag: 'my-component',
   styleUrl: 'my-component.scss',
@@ -120,8 +121,7 @@ export class MyComponent {
   };
   switchToNextMonth = (): void => {
     const date = this.getValidDate();
-    const upperLimit = this.addDays(new Date(), 61).getMonth()
-    ;
+    const upperLimit = this.addDays(new Date(), 61).getMonth();
     if (this.date.month !== 12) {
       this.date.month += 1;
     } else {
@@ -172,15 +172,21 @@ export class MyComponent {
   renderAll = () => {
     const date = this.getValidDate();
     return (
-      <div class="calendar material" >
-        <header >
-          <div onClick={() => (this.all = false)} style={{backgroundColor:"red", cursor:"pointer"}}>{this.monthNames[date.month - 1]}</div>
-          <span onClick={this.switchToPreviousMonth} style={{ opacity: this.disableCrossForArrowBackward ? '.1' : '1  ' }}>
-            {'<'}
-          </span>
-          <span onClick={this.switchToNextMonth} style={{ opacity: this.disableCrossForArrowForward ? '.1' : '1' }}>
-            {'>'}
-          </span>
+      <div class="calendar material">
+        <header>
+          <div>
+            <div onClick={() => (this.all = false)} style={{ cursor: 'pointer' }}>
+              {this.monthNames[date.month - 1]}
+            </div>
+          </div>
+          <div>
+            <span onClick={this.switchToPreviousMonth} style={{ opacity: this.disableCrossForArrowBackward ? '.1' : '1  ' }} class="arrows">
+              {'<'}
+            </span>
+            <span onClick={this.switchToNextMonth} style={{ opacity: this.disableCrossForArrowForward ? '.1' : '1' }}>
+              {'>'}
+            </span>
+          </div>
         </header>
         <div class="day-names">
           {this.dayNames.map(dayName => (
@@ -204,14 +210,20 @@ export class MyComponent {
       </div>
     );
   };
-renderOnly() {
+  renderOnly() {
     return (
       <div onClick={() => (this.all = true)}>
-        <idk-2 />
+        <idk-2 selectedMonth="June" />
       </div>
     );
   }
   render() {
-    return <Host>{this.all ? this.renderAll() : this.renderOnly()}</Host>;
+    return (
+      <Host>
+        <nest-notification-modal-dialog open>
+          <div class="all">{this.all ? this.renderAll() : this.renderOnly()}</div>
+        </nest-notification-modal-dialog>
+      </Host>
+    );
   }
 }

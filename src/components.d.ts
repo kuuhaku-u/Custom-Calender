@@ -8,6 +8,7 @@ import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { CalendarEntry } from "./utils/calendar-entry";
 export namespace Components {
     interface Idk2 {
+        "selectedMonth": any;
     }
     interface Idk22 {
         "hrFormat24": boolean;
@@ -54,6 +55,7 @@ declare global {
 }
 declare namespace LocalJSX {
     interface Idk2 {
+        "selectedMonth"?: any;
     }
     interface Idk22 {
         "hrFormat24"?: boolean;

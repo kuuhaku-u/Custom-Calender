@@ -21,7 +21,7 @@ export class Idk22 {
   @State() min: string | number;
   @State() ampm: string;
   @Event() selectedTimeEmitter: EventEmitter<{ hour: string | number; minute: string | number; meridian: string }>;
-  meridian = [' ', '2023', '2024', ' '];
+  meridian = [' ', new Date().getFullYear().toString(), (new Date().getFullYear() + 1).toString(), ' '];
   childElementsHour: unknown = [];
   childElementsMinutes: unknown = [];
   childElementsAMPM: unknown = [];
@@ -77,8 +77,6 @@ export class Idk22 {
   timeSetter(data, type) {
     if (type === 'hour') {
       return (this.hour = data);
-    } else if (type === 'min') {
-      return (this.min = data);
     } else {
       return (this.ampm = data);
     }
@@ -100,9 +98,9 @@ export class Idk22 {
       index = temp.indexOf(n);
       if (type === 'meridian') {
         if (elTop > containerTop) {
-          el.innerHTML === 'X1' || el.innerHTML === '2023' ? this.timeSetter('2023', type) : this.timeSetter('2024', type);
+          el.innerHTML === ' ' || el.innerHTML === '2023' ? this.timeSetter('2024', type) : this.timeSetter('2024', type);
         } else {
-          el.innerHTML !== 'X2' || el.innerHTML !== '2024' ? this.timeSetter('2023', type) : this.timeSetter('2024', type);
+          el.innerHTML === ' ' || el.innerHTML === '2024' ? this.timeSetter('2023', type) : this.timeSetter('2023', type);
         }
       } else {
         if (elTop <= containerTop) {
@@ -224,9 +222,9 @@ export class Idk22 {
     this.ampmSelRef?.textContent === '2023'
       ? null
       : this.ampmScrollPortRef.scrollTo({
-        top: 30 * 4,
-        behavior: 'smooth',
-      });
+          top: 30 * 4,
+          behavior: 'smooth',
+        });
     const hourIndex = this.hr.indexOf(Number(this.hourSelRef.textContent === '00' ? 0 : this.hourSelRef.textContent));
     this.hourScrollPortRef.querySelector('.scrollport').scrollTo({
       top: Number(hourIndex) > 8 ? 30 * hourIndex - 1 : 32 * hourIndex - 31,
