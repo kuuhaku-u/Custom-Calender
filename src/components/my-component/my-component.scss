@@ -2,11 +2,11 @@
   padding: 1rem;
 }
 .all {
-  max-height: 268px;
-  max-width: 263px;
+  max-height: 278px;
+  max-width: 273px;
 }
 .calendar > * {
-  line-height: 30px;
+  line-height: 35px;
 }
 header {
   display: flex;
@@ -37,13 +37,13 @@ header {
   position: relative;
 }
 .days-in-month i {
-  padding: 0.8rem;
+  padding: 8px;
   font-style: normal;
   position: relative;
   width: 100%;
 }
 .days-in-month i.padding-single-digit {
-  padding: 0.8rem 1.1rem;
+  padding:8px 12px;
 }
 .days-in-month span.disabled {
   color: #ccc;
@@ -88,7 +88,7 @@ header {
 }
 nest-notification-modal-dialog {
   &::part(notification-modal-dialog-container-) {
-    height: 290px;
+    height: 325px;
     max-height: unset;
   }
 }

@@ -1,11 +1,15 @@
-import { Component, h, Host, Prop } from '@stencil/core';
+import { Component, h, Host, Listen, Prop } from '@stencil/core';
 @Component({
   tag: 'idk-2',
   styleUrl: 'idk-2.scss',
   shadow: true,
 })
 export class Idk2 {
-  @Prop() selectedMonth
+  @Prop() selectedMonth;
+  @Listen('selectedTimeEmitter')
+  df(e) {
+    this.selectedMonth = e.detail.hour;
+  }
   render() {
     return (
       <Host>

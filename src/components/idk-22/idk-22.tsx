@@ -43,7 +43,7 @@ export class Idk22 {
     return [...getTimeMin, meridian[1]];
   }
   hourFormat(): any[] {
-    return this.hrFormat24 ? this.hr24Format : this.hr12Format.slice(3, 6);
+    return this.hrFormat24 ? this.hr24Format : this.hr12Format.slice(6, 9);
   }
   setClassSelected(arr, val) {
     try {
@@ -169,9 +169,6 @@ export class Idk22 {
     const callbackHourIO = entries => {
       this.callBackHelper(entries, hourElements, this.hr, 'hour');
     };
-    // const callbackMinIO = entries => {
-    //   this.callBackHelper(entries, minElements, this.m, 'min');
-    // };
     const callbackMeridianIO = entries => {
       this.callBackHelper(entries, meridianElements, this.meridian, 'meridian');
     };
@@ -184,12 +181,6 @@ export class Idk22 {
     hourObserve.forEach(el => {
       hourObserver.observe(el);
     });
-    // const minObserve = this.minScrollPortRef.querySelector('.scrollport').querySelectorAll('.cell');
-    // const minElements = this.childElementsMinutes;
-    // const minObserver = new IntersectionObserver(callbackMinIO, options.m);
-    // minObserve.forEach(el => {
-    //   minObserver.observe(el);
-    // });
     const ampmObserver = this.ampmScrollPortRef.querySelectorAll('.cell');
     const meridianElements = this.childElementsAMPM;
     const ampmObserve = new IntersectionObserver(callbackMeridianIO, options.ampm);
@@ -203,16 +194,13 @@ export class Idk22 {
   @Watch('hour')
   emitHour() {
     this.setClassSelected(this.childElementsHour, this.hour);
-    this.selectedTimeEmitter.emit({ hour: this.hour, minute: this.min, meridian: this.ampm });
-  }
-  @Watch('min')
-  emitMin() {
-    this.setClassSelected(this.childElementsMinutes, this.min);
+    console.log('Month', this.hour);
     this.selectedTimeEmitter.emit({ hour: this.hour, minute: this.min, meridian: this.ampm });
   }
   @Watch('ampm')
   emitAMPM() {
     this.setClassSelected(this.childElementsAMPM, this.ampm);
+    console.log('Year', this.ampm);
     this.selectedTimeEmitter.emit({ hour: this.hour, minute: this.min, meridian: this.ampm });
   }
   /**
@@ -225,20 +213,13 @@ export class Idk22 {
           top: 30 * 4,
           behavior: 'smooth',
         });
-    const hourIndex = this.hr.indexOf(Number(this.hourSelRef.textContent === '00' ? 0 : this.hourSelRef.textContent));
+    const hourIndex = this.hr.indexOf(this.hourSelRef.textContent);
+    console.log(hourIndex,"INDEX");
     this.hourScrollPortRef.querySelector('.scrollport').scrollTo({
-      top: Number(hourIndex) > 8 ? 30 * hourIndex - 1 : 32 * hourIndex - 31,
+      top:  33 * hourIndex+2,
       behavior: 'smooth',
     });
-    // const minIndex = this.m.indexOf(Number(this.minSelRef.textContent === '00' ? 0 : this.minSelRef.textContent));
-    // this.minSelRef.textContent === '00'
-    //   ? null
-    //   : this.minScrollPortRef.querySelector('.scrollport').scrollTo({
-    //     top: 25 * minIndex - 3,
-    //     behavior: 'smooth',
-    //   });
     this.forHour();
-    // this.forMinutes();
     this.forAMPM();
   }
   /**
@@ -269,9 +250,9 @@ export class Idk22 {
         part={`hour-cell-${time == this.hour ? 'selected-part' : 'not-selected-part'}`}
         class={`cell   ${time == selection && 'selected'} ${time === ' ' && 'hide'} `}
         ref={el => {
-          // if (time !== selection) {
-          //   return;
-          // }
+          if (time !== selection) {
+            return;
+          }
           this.hourSelRef = el as HTMLElement;
         }}
       >
@@ -308,7 +289,7 @@ export class Idk22 {
       <div class="wheels" id="wheel">
         <div class="hour" id="hour_id" ref={el => (this.hourScrollPortRef = el as HTMLElement)}>
           <div class="scrollport  hour" id="hour_scrollport">
-            {this.forHrWheel(this.hr, this.startNewTime.selectedHour)}
+            {this.forHrWheel(this.hr, "June")}
           </div>
         </div>
         <div class="ampm" id="ampm_id" style={{ display: this.hrFormat24 ? 'none' : '' }}>
