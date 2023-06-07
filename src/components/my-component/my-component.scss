@@ -43,7 +43,7 @@ header {
   width: 100%;
 }
 .days-in-month i.padding-single-digit {
-  padding:8px 12px;
+  padding: 8px 12px;
 }
 .days-in-month span.disabled {
   color: #ccc;
@@ -55,12 +55,12 @@ header {
   border-radius: 50%;
 }
 .material .days-in-month i.active {
-  background: #007AFF;
+  background: #007aff;
   border-radius: 50%;
   // padding: 0.6rem;
 }
 .material .days-in-month i.selected {
-  background: #007AFF;
+  background: #007aff;
   color: #fff;
   border-radius: 50%;
 }
@@ -70,7 +70,7 @@ header {
   position: absolute;
   top: 0.4rem;
   left: 1.18rem;
-  color: #007AFF;
+  color: #007aff;
 }
 .material .days-in-month i.selected.has-event:before {
   color: #fff;
@@ -95,6 +95,12 @@ nest-notification-modal-dialog {
 .arrows {
   padding-right: 26px;
 }
-header{
+header {
   padding-bottom: 12px;
+}
+.dim {
+  opacity: 0.5;
+}
+.not-dim {
+  opacity: 1;
 }

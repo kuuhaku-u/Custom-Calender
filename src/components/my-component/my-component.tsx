@@ -16,6 +16,8 @@ export class MyComponent {
   @State() selectedDate: CalendarEntry;
   @State() eventDates = [];
   @State() disableCrossForArrowForward = false;
+  @State() limitUpper = 71;
+  @State() limitLower = 28;
   @State() disableCrossForArrowBackward = false;
   @State() openModal = false;
   @State() all = false;
@@ -36,6 +38,10 @@ export class MyComponent {
   private fillStartCount: number;
   private fillEndCount: number;
   readonly today: CalendarEntry;
+  private llDate: any;
+  private ulDate: any;
+  private llDateArr: any[] = [];
+  private ulDateArr: any[] = [];
   constructor() {
     this.today = Calendar.getToday();
   }
@@ -46,6 +52,8 @@ export class MyComponent {
     }
   }
   componentWillLoad() {
+    this.ulDate = this.addDays(new Date(), this.limitUpper).toISOString().split('T')[0];
+    this.llDate = this.subDays(new Date(), this.limitLower).toISOString().split('T')[0];
     this.setCalendarDetails();
   }
   addDays(date: Date, days: number | string): Date {
@@ -57,13 +65,17 @@ export class MyComponent {
     return date;
   }
   setCalendarDetails(): void {
-    const upperLimi= this.addDays(new Date(), 61).getMonth();
-    if (this.date?.month > upperLimi + 1) {
+    const upperLimit = this.addDays(new Date(), this.limitUpper).getMonth() + 1;
+    const lowerLimit = this.subDays(new Date(), this.limitLower).getMonth() + 1;
+    if (this.date?.month > upperLimit) {
+      this.date.month = upperLimit;
+      return;
+    }
+    if (this.date?.month < lowerLimit) {
+      this.date.month = lowerLimit;
       return;
     }
     this.date = this.getValidDate();
-    const upperLimit = this.addDays(new Date(), 61).getMonth() + 1;
-    const lowerLimit = this.subDays(new Date(), 28).getMonth() + 1;
     if (upperLimit >= this.date.month && lowerLimit <= this.date.month) {
       const calendar = new Calendar(this.date.year, this.date.month);
       this.daysInMonth = calendar.getCalendarDays();
@@ -74,15 +86,18 @@ export class MyComponent {
     }
   }
   getValidDate(): CalendarEntry {
-    const upperLimit = this.addDays(new Date(), 61).getMonth();
+    const upperLimit = this.addDays(new Date(), this.limitUpper).getMonth();
+    const lowerLimit = this.subDays(new Date(), this.limitLower).getMonth();
     if (this.date?.month > upperLimit + 1) {
+      return;
+    }
+    if (this.date?.month < lowerLimit + 1) {
       return;
     }
     let date = this.date;
     if (!('month' in this.date && 'year' in this.date)) {
       date = this.today;
     }
-    console.log(date);
     return date;
   }
   dayChangedHandler(calendarEntry: CalendarEntry): void {
@@ -101,7 +116,7 @@ export class MyComponent {
   }
   switchToPreviousMonth = (): void => {
     this.date = this.getValidDate();
-    const lowerLimit = this.subDays(new Date(), 28).getMonth() + 1;
+    const lowerLimit = this.subDays(new Date(), this.limitLower).getMonth() + 1;
     if (this.date.month !== 1) {
       this.date.month -= 1;
     } else {
@@ -111,6 +126,15 @@ export class MyComponent {
     if (typeof this.date !== 'undefined') {
       delete this.date.day;
     }
+    const searchValue = 1;
+    const indices = this.daysInMonth.reduce((acc, currentElement, currentIndex) => {
+      if (currentElement === searchValue) {
+        acc.push(currentIndex);
+      }
+      return acc;
+    }, []);
+    this.ulDateArr = [];
+    this.llDateArr = this.daysInMonth.slice(indices[0], indices[1]);
     this.setCalendarDetails();
     this.monthChangedHandler(this.date);
     this.disableCrossForArrowForward = false;
@@ -123,8 +147,8 @@ export class MyComponent {
   };
   switchToNextMonth = (): void => {
     this.date = this.getValidDate();
-    const upperLimit = this.addDays(new Date(), 61).getMonth();
-    let tempMonth;
+    const upperLimit = this.addDays(new Date(), this.limitUpper).getMonth();
+    const upperLimitDay = this.addDays(new Date(), this.limitUpper).getDate();
     if (this.date.month !== 12) {
       this.date.month += 1;
     } else {
@@ -135,13 +159,22 @@ export class MyComponent {
     this.setCalendarDetails();
     this.monthChangedHandler(this.date);
     this.disableCrossForArrowBackward = false;
-    if (upperLimit < this.date.month) {
-      // console.log("L");
-      // this.date.month = tempMonth;
-      this.disableCrossForArrowForward = true;
+    if (this.date.month === upperLimit + 1) {
+      const searchValue = 1;
+      const indices = this.daysInMonth.reduce((acc, currentElement, currentIndex) => {
+        if (currentElement === searchValue) {
+          acc.push(currentIndex);
+        }
+        return acc;
+      }, []);
+      this.ulDateArr = this.daysInMonth.slice(indices[0], indices[1]);
+      const fg = this.ulDateArr.indexOf(upperLimitDay);
+      this.ulDateArr = this.ulDateArr.splice(fg);
     } else {
-      // tempMonth = this.date.month;
-      console.log('f');
+      this.ulDateArr = [];
+    }
+    if (upperLimit < this.date.month) {
+      this.disableCrossForArrowForward = true;
     }
     if (this.disableCrossForArrowForward) {
       return;
@@ -177,6 +210,10 @@ export class MyComponent {
       !(index < this.fillStartCount || index >= this.fillEndCount)
     );
   }
+  isDisabled(day) {
+    const isTrue = this.ulDateArr.find(el => el == day);
+    return isTrue ? 'dim' : 'not-dim';
+  }
   renderAll = () => {
     const date = this.getValidDate();
     return (
@@ -209,7 +246,7 @@ export class MyComponent {
             } else {
               return (
                 <span onClick={() => this.daySelectedHandler(day)} part="calender-part-day-name-span">
-                  <i part="calender-part-day-name-i" class={classNameDigit}>
+                  <i part="calender-part-day-name-i" class={`${classNameDigit} ${this.isDisabled(day)}`}>
                     {day}
                   </i>
                 </span>
