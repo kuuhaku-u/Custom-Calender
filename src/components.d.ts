@@ -9,10 +9,11 @@ import { CalendarEntry } from "./utils/calendar-entry";
 export namespace Components {
     interface Idk2 {
         "selectedMonth": any;
+        "stuff": any;
     }
     interface Idk22 {
-        "hrFormat24": boolean;
-        "step": number;
+        "currentMonth": string;
+        "limits": any;
     }
     interface MyComponent {
         "dayNames": string[];
@@ -56,11 +57,12 @@ declare global {
 declare namespace LocalJSX {
     interface Idk2 {
         "selectedMonth"?: any;
+        "stuff"?: any;
     }
     interface Idk22 {
-        "hrFormat24"?: boolean;
-        "onSelectedTimeEmitter"?: (event: Idk22CustomEvent<{ hour: string | number; minute: string | number; meridian: string }>) => void;
-        "step"?: number;
+        "currentMonth"?: string;
+        "limits"?: any;
+        "onSelectedDate"?: (event: Idk22CustomEvent<{ month: string | number; year: string }>) => void;
     }
     interface MyComponent {
         "dayNames"?: string[];

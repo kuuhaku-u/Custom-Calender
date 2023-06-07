@@ -6,6 +6,7 @@ import { Component, h, Host, Listen, Prop } from '@stencil/core';
 })
 export class Idk2 {
   @Prop() selectedMonth;
+  @Prop() stuff: any;
   @Listen('selectedTimeEmitter')
   df(e) {
     this.selectedMonth = e.detail.hour;
@@ -18,7 +19,7 @@ export class Idk2 {
             <div style={{ cursor: 'pointer' }}>{this.selectedMonth}</div>
           </header>
           <div class="dropdown-month-year">
-            <idk-22 />
+            <idk-22 limits={this.stuff} />
           </div>
         </div>
       </Host>

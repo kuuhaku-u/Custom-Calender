@@ -258,9 +258,11 @@ export class MyComponent {
     );
   };
   renderOnly() {
+    const upperLimit = this.addDays(new Date(), this.limitUpper).getMonth() + 1;
+    const lowerLimit = this.subDays(new Date(), this.limitLower).getMonth() + 1;
     return (
       <div onClick={() => (this.all = false)}>
-        <idk-2 selectedMonth="June" />
+        <idk-2 selectedMonth="June" stuff={{upper:upperLimit, lower:lowerLimit}} />
       </div>
     );
   }

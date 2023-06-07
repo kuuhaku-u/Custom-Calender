@@ -1,49 +1,29 @@
-import { Component, EventEmitter, Host, Prop, State, Watch, h, Event } from '@stencil/core';
+import { Component, EventEmitter, Host, State, Watch, h, Event, Prop } from '@stencil/core';
 @Component({
   tag: 'idk-22',
   styleUrl: 'idk-22.scss',
   shadow: true,
 })
 export class Idk22 {
-  @Prop({ mutable: true }) hrFormat24 = false;
-  @Prop({ mutable: true }) step = 15;
-  @State() startTime: string | undefined = '2:30 PM';
-  @State() hr: any[];
-  @State() hr24Format: any[] = [' ', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, ' '];
+  @Prop() limits: any;
+  @Prop() currentMonth = 'June';
   @State() hr12Format: any[] = [' ', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', ' '];
-  @State() m: any[] = [];
-  @State() startNewTime: { selectedHour: number | string; selectedMinute: number | string; selectedAMPM: string } = {
-    selectedHour: 5,
-    selectedMinute: 30,
-    selectedAMPM: 'AM',
-  };
+  @State() month: any[];
   @State() hour: string | number;
-  @State() min: string | number;
   @State() ampm: string;
-  @Event() selectedTimeEmitter: EventEmitter<{ hour: string | number; minute: string | number; meridian: string }>;
-  meridian = [' ', new Date().getFullYear().toString(), (new Date().getFullYear() + 1).toString(), ' '];
-  childElementsHour: unknown = [];
-  childElementsMinutes: unknown = [];
-  childElementsAMPM: unknown = [];
-  hourSelRef?: HTMLElement;
-  hourScrollPortRef?: HTMLElement;
-  minSelRef?: HTMLElement;
-  minScrollPortRef?: HTMLElement;
-  ampmSelRef?: HTMLElement;
-  ampmScrollPortRef?: HTMLElement;
+  @Event() selectedDate: EventEmitter<{ month: string | number; year: string }>;
+  year = [' ', new Date().getFullYear().toString(), (new Date().getFullYear() + 1).toString(), ' '];
+  childElementsMonth: unknown = [];
+  childElementsYear: unknown = [];
+  monthSelRef?: HTMLElement;
+  monthScrollPortRef?: HTMLElement;
+  yearSelRef?: HTMLElement;
+  yearSelRefScroll?: HTMLElement;
   /**
    *@HelperFunction
    */
-  splitData() {
-    if (this.startTime === undefined) {
-      return;
-    }
-    const meridian = this.startTime.split(' ');
-    const getTimeMin = meridian[0].split(':');
-    return [...getTimeMin, meridian[1]];
-  }
-  hourFormat(): any[] {
-    return this.hrFormat24 ? this.hr24Format : this.hr12Format.slice(6, 9);
+  monthArrayReturn(): any[] {
+    return this.hr12Format.slice(5, 8);
   }
   setClassSelected(arr, val) {
     try {
@@ -62,19 +42,15 @@ export class Idk22 {
       console.warn('error : ', error);
     }
   }
-  forHour() {
-    const cells = this.hourScrollPortRef.querySelectorAll('.cell');
-    this.childElementsHour = cells;
+  forMonth() {
+    const cells = this.monthScrollPortRef.querySelectorAll('.cell');
+    this.childElementsMonth = cells;
   }
-  forMinutes() {
-    const cells = this.minScrollPortRef.querySelectorAll('.cell');
-    this.childElementsMinutes = cells;
+  forYEar() {
+    const cells = this.yearSelRefScroll.querySelectorAll('.cell');
+    this.childElementsYear = cells;
   }
-  forAMPM() {
-    const cells = this.ampmScrollPortRef.querySelectorAll('.cell');
-    this.childElementsAMPM = cells;
-  }
-  timeSetter(data, type) {
+  dateSetter(data, type) {
     if (type === 'hour') {
       return (this.hour = data);
     } else {
@@ -85,7 +61,7 @@ export class Idk22 {
     if (!entry || !entry.target) {
       return;
     }
-    const pos = this.hourScrollPortRef;
+    const pos = this.monthScrollPortRef;
     const elGBC = pos.getBoundingClientRect();
     const containerTop = elGBC.top;
     const elTop = entry.boundingClientRect.top;
@@ -96,19 +72,18 @@ export class Idk22 {
       const n = el.innerHTML && !isNaN(el.innerHTML) ? Number(el.innerHTML) : el.innerHTML;
       const temp = elToFindFrom;
       index = temp.indexOf(n);
-      if (type === 'meridian') {
+      if (type === 'year') {
         if (elTop > containerTop) {
-          el.innerHTML === ' ' || el.innerHTML === '2023' ? this.timeSetter('2024', type) : this.timeSetter('2024', type);
+          el.innerHTML === ' ' || el.innerHTML === '2023' ? this.dateSetter('2024', type) : this.dateSetter('2024', type);
         } else {
-          el.innerHTML === ' ' || el.innerHTML === '2024' ? this.timeSetter('2023', type) : this.timeSetter('2023', type);
+          el.innerHTML === ' ' || el.innerHTML === '2024' ? this.dateSetter('2023', type) : this.dateSetter('2023', type);
         }
       } else {
         if (elTop <= containerTop) {
-          this.timeSetter(arr[index + 1].innerHTML === ' ' ? '1' : arr[index + 1].innerHTML, type);
+          this.dateSetter(arr[index + 1].innerHTML === ' ' ? '1' : arr[index + 1].innerHTML, type);
         } else {
           const res = isNaN(parseInt(el.innerHTML)) ? arr[len - 2].innerHTML : arr[index < len - 1 && index - 1].innerHTML;
-          // }
-          this.timeSetter(res, type);
+          this.dateSetter(res, type);
         }
       }
     }
@@ -125,41 +100,21 @@ export class Idk22 {
    * @LifecycleMethod
    */
   connectedCallback() {
-    const st = this.step === 0 ? 60 : this.step;
-    for (let i = 0; i < 60 / st; i++) {
-      this.m[i] = this.step * i;
-    }
     const emptyStr = '';
-    this.m.push(emptyStr);
-    this.m = Array.from(new Set(this.m));
-    this.m.unshift(emptyStr);
-    const arr = this.hourFormat();
+    const arr = this.monthArrayReturn();
     arr.push(emptyStr);
     arr.unshift(emptyStr);
-    this.hr = arr;
-    // ---set initial time
-    const initialTime = this.splitData();
-    if (initialTime !== undefined) {
-      this.startNewTime = {
-        selectedHour: Number(initialTime[0]),
-        selectedMinute: Number(initialTime[1]),
-        selectedAMPM: (this.ampm = initialTime[2]),
-      };
-    }
+    this.month = arr;
   }
   componentDidLoad() {
     this.initialScrollToActiveValue();
     const options = {
       h: {
-        root: this.hourScrollPortRef,
-        threshold: 1,
-      },
-      m: {
-        root: this.minScrollPortRef,
+        root: this.monthScrollPortRef,
         threshold: 1,
       },
       ampm: {
-        root: this.ampmScrollPortRef,
+        root: this.yearSelRefScroll,
         threshold: 1,
       },
     };
@@ -167,22 +122,22 @@ export class Idk22 {
             OBSERVERS callback
     -----------------------------------*/
     const callbackHourIO = entries => {
-      this.callBackHelper(entries, hourElements, this.hr, 'hour');
+      this.callBackHelper(entries, hourElements, this.month, 'hour');
     };
     const callbackMeridianIO = entries => {
-      this.callBackHelper(entries, meridianElements, this.meridian, 'meridian');
+      this.callBackHelper(entries, meridianElements, this.year, 'year');
     };
     /* ----------------------------------
             Set what to Observe on
     -----------------------------------*/
-    const hourElements = this.childElementsHour;
-    const hourObserve = this.hourScrollPortRef.querySelector('.scrollport').querySelectorAll('.cell');
+    const hourElements = this.childElementsMonth;
+    const hourObserve = this.monthScrollPortRef.querySelector('.scrollport').querySelectorAll('.cell');
     const hourObserver = new IntersectionObserver(callbackHourIO, options.h);
     hourObserve.forEach(el => {
       hourObserver.observe(el);
     });
-    const ampmObserver = this.ampmScrollPortRef.querySelectorAll('.cell');
-    const meridianElements = this.childElementsAMPM;
+    const ampmObserver = this.yearSelRefScroll.querySelectorAll('.cell');
+    const meridianElements = this.childElementsYear;
     const ampmObserve = new IntersectionObserver(callbackMeridianIO, options.ampm);
     ampmObserver.forEach(el => {
       ampmObserve.observe(el);
@@ -193,56 +148,55 @@ export class Idk22 {
    */
   @Watch('hour')
   emitHour() {
-    this.setClassSelected(this.childElementsHour, this.hour);
-    console.log('Month', this.hour);
-    this.selectedTimeEmitter.emit({ hour: this.hour, minute: this.min, meridian: this.ampm });
+    this.setClassSelected(this.childElementsMonth, this.hour);
+    this.selectedDate.emit({ month: this.hour, year: this.ampm });
   }
   @Watch('ampm')
   emitAMPM() {
-    this.setClassSelected(this.childElementsAMPM, this.ampm);
-    console.log('Year', this.ampm);
-    this.selectedTimeEmitter.emit({ hour: this.hour, minute: this.min, meridian: this.ampm });
+    this.setClassSelected(this.childElementsYear, this.ampm);
+    this.selectedDate.emit({ month: this.hour, year: this.ampm });
   }
   /**
    * Fire every time component get attached to DOM to scroll to  active time
    */
   initialScrollToActiveValue() {
-    this.ampmSelRef?.textContent === '2023'
-      ? null
-      : this.ampmScrollPortRef.scrollTo({
-          top: 30 * 4,
-          behavior: 'smooth',
-        });
-    const hourIndex = this.hr.indexOf(this.hourSelRef.textContent);
-    console.log(hourIndex,"INDEX");
-    this.hourScrollPortRef.querySelector('.scrollport').scrollTo({
-      top:  33 * hourIndex+2,
+    // this.yearSelRef?.textContent === '2023'
+    //   ? null
+    //   : this.yearSelRefScroll.scrollTo({
+    //       top: 30 * 4,
+    //       behavior: 'smooth',
+    //     });
+    console.log(this.monthSelRef.textContent, this.monthScrollPortRef.querySelector('.scrollport'));
+    const monthIndex = this.month.indexOf(this.monthSelRef.textContent);
+    console.log(monthIndex, this.month);
+    this.monthScrollPortRef.querySelector('.scrollport').scrollTo({
+      top: 33 * 1,
       behavior: 'smooth',
     });
-    this.forHour();
-    this.forAMPM();
+    this.forMonth();
+    this.forYEar();
   }
   /**
    *  @return HTML
    */
-  forMeridianWheel = (arr, selection) =>
+  forYearWheel = (arr, selection) =>
     arr.map((time, index) => (
       <div
         id={`meridian_cell_${index}_id`}
-        part={`meridian-cell-${time === this.ampm ? 'selected-part' : 'not-selected-part'}`}
+        part={`year-cell-${time === this.ampm ? 'selected-part' : 'not-selected-part'}`}
         aria-label={time}
         class={`cell  ${time === selection && 'selected'}  ${time === 'X1' || time === 'X2' ? 'hide' : ''} `}
         ref={el => {
           if (time !== selection) {
             return;
           }
-          this.ampmSelRef = el as HTMLElement;
+          this.yearSelRef = el as HTMLElement;
         }}
       >
         {time}
       </div>
     ));
-  forHrWheel = (arr, selection) =>
+  forMonthWheel = (arr, selection) =>
     arr.map((time, index) => (
       <div
         aria-label={time}
@@ -253,24 +207,7 @@ export class Idk22 {
           if (time !== selection) {
             return;
           }
-          this.hourSelRef = el as HTMLElement;
-        }}
-      >
-        {time}
-      </div>
-    ));
-  forMinWheel = (arr, selection) =>
-    arr.map((time, index) => (
-      <div
-        id={`min_cell_${index}_id`}
-        part={`min-cell-${time == this.min ? 'selected-part' : 'not-selected-part'}`}
-        aria-label={time}
-        class={`cell  ${time == selection && 'selected'} ${time === ' ' && 'hide'} `}
-        ref={el => {
-          if (time !== selection) {
-            return;
-          }
-          this.minSelRef = el as HTMLElement;
+          this.monthSelRef = el as HTMLElement;
         }}
       >
         {time}
@@ -287,14 +224,14 @@ export class Idk22 {
   renderWheel() {
     return (
       <div class="wheels" id="wheel">
-        <div class="hour" id="hour_id" ref={el => (this.hourScrollPortRef = el as HTMLElement)}>
+        <div class="hour" id="hour_id" ref={el => (this.monthScrollPortRef = el as HTMLElement)}>
           <div class="scrollport  hour" id="hour_scrollport">
-            {this.forHrWheel(this.hr, "June")}
+            {this.forMonthWheel(this.month, this.currentMonth)}
           </div>
         </div>
-        <div class="ampm" id="ampm_id" style={{ display: this.hrFormat24 ? 'none' : '' }}>
-          <div class="scrollport" id="ampm_scrollport" ref={el => (this.ampmScrollPortRef = el as HTMLElement)}>
-            {this.forMeridianWheel(this.meridian, this.startNewTime.selectedAMPM)}
+        <div class="ampm" id="ampm_id">
+          <div class="scrollport" id="ampm_scrollport" ref={el => (this.yearSelRefScroll = el as HTMLElement)}>
+            {this.forYearWheel(this.year, '2023')}
           </div>
         </div>
       </div>
