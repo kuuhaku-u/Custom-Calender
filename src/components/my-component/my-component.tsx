@@ -17,7 +17,7 @@ export class MyComponent {
   @State() eventDates = [];
   @State() disableCrossForArrowForward = false;
   @State() limitUpper = 71;
-  @State() limitLower = 28;
+  @State() limitLower = 33;
   @State() disableCrossForArrowBackward = false;
   @State() openModal = false;
   @State() all = false;
@@ -76,14 +76,10 @@ export class MyComponent {
       return;
     }
     this.date = this.getValidDate();
-    if (upperLimit >= this.date.month && lowerLimit <= this.date.month) {
-      const calendar = new Calendar(this.date.year, this.date.month);
-      this.daysInMonth = calendar.getCalendarDays();
-      this.fillStartCount = calendar.getFillStartCount();
-      this.fillEndCount = calendar.daysInCalendar - calendar.getFillEndCount();
-    } else {
-      return;
-    }
+    const calendar = new Calendar(this.date.year, this.date.month);
+    this.daysInMonth = calendar.getCalendarDays();
+    this.fillStartCount = calendar.getFillStartCount();
+    this.fillEndCount = calendar.daysInCalendar - calendar.getFillEndCount();
   }
   getValidDate(): CalendarEntry {
     const upperLimit = this.addDays(new Date(), this.limitUpper).getMonth();
@@ -117,6 +113,7 @@ export class MyComponent {
   switchToPreviousMonth = (): void => {
     this.date = this.getValidDate();
     const lowerLimit = this.subDays(new Date(), this.limitLower).getMonth() + 1;
+    const lowerLimitDate = this.subDays(new Date(), this.limitLower).getDate();
     if (this.date.month !== 1) {
       this.date.month -= 1;
     } else {
@@ -126,15 +123,21 @@ export class MyComponent {
     if (typeof this.date !== 'undefined') {
       delete this.date.day;
     }
-    const searchValue = 1;
-    const indices = this.daysInMonth.reduce((acc, currentElement, currentIndex) => {
-      if (currentElement === searchValue) {
-        acc.push(currentIndex);
-      }
-      return acc;
-    }, []);
-    this.ulDateArr = [];
-    this.llDateArr = this.daysInMonth.slice(indices[0], indices[1]);
+    if (this.date.month === lowerLimit) {
+      const searchValue = 1;
+      const indices = this.daysInMonth.reduce((acc, currentElement, currentIndex) => {
+        if (currentElement === searchValue) {
+          acc.push(currentIndex);
+        }
+        return acc;
+      }, []);
+      this.ulDateArr = [];
+      this.ulDateArr = this.daysInMonth.slice(indices[0], indices[1]);
+      const fg = this.ulDateArr.indexOf(lowerLimitDate);
+      this.ulDateArr = this.ulDateArr.splice(0,fg);
+    } else {
+      this.ulDateArr = [];
+    }
     this.setCalendarDetails();
     this.monthChangedHandler(this.date);
     this.disableCrossForArrowForward = false;
@@ -262,7 +265,7 @@ export class MyComponent {
     const lowerLimit = this.subDays(new Date(), this.limitLower).getMonth() + 1;
     return (
       <div onClick={() => (this.all = false)}>
-        <idk-2 selectedMonth="June" stuff={{upper:upperLimit, lower:lowerLimit}} />
+        <idk-2 selectedMonth="June" stuff={{ upper: upperLimit, lower: lowerLimit }} />
       </div>
     );
   }

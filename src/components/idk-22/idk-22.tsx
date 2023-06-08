@@ -12,7 +12,7 @@ export class Idk22 {
   @State() hour: string | number;
   @State() ampm: string;
   @Event() selectedDate: EventEmitter<{ month: string | number; year: string }>;
-  year = [' ', new Date().getFullYear().toString(), (new Date().getFullYear() + 1).toString(), ' '];
+  year = [' ', new Date().getFullYear().toString(), ' '];
   childElementsMonth: unknown = [];
   childElementsYear: unknown = [];
   monthSelRef?: HTMLElement;
