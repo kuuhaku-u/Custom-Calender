@@ -23,7 +23,7 @@ export class Idk22 {
    *@HelperFunction
    */
   monthArrayReturn(): any[] {
-    return this.hr12Format.slice(5, 8);
+    return this.hr12Format;
   }
   setClassSelected(arr, val) {
     try {
@@ -67,24 +67,26 @@ export class Idk22 {
     const elTop = entry.boundingClientRect.top;
     const len = arr.length;
     let index;
-    if (entry.isIntersecting) {
-      const el = entry.target;
-      const n = el.innerHTML && !isNaN(el.innerHTML) ? Number(el.innerHTML) : el.innerHTML;
-      const temp = elToFindFrom;
-      index = temp.indexOf(n);
-      if (type === 'year') {
-        if (elTop > containerTop) {
-          el.innerHTML === ' ' || el.innerHTML === '2023' ? this.dateSetter('2024', type) : this.dateSetter('2024', type);
+    const el = entry.target;
+    const n = el.innerHTML && !isNaN(el.innerHTML) ? Number(el.innerHTML) : el.innerHTML;
+    const temp = elToFindFrom;
+    index = temp.indexOf(n);
+    if (type === 'year') {
+      if (elTop > containerTop) {
+        this.dateSetter(el?.innerHTML === ' ' ? arr[1]?.innerHTML : '2024', type);
+      } else {
+        this.dateSetter(el?.innerHTML === ' ' ? arr[2]?.innerHTML : '2023', type);
+      }
+    } else {
+      if (Math.round(elTop) - 1 <= containerTop || Math.round(elTop) - 1 < 200) {
+        if (type === 'hour') {
+          this.dateSetter(el?.innerHTML === '' ? arr[1]?.innerHTML : arr[index + 1]?.innerHTML, type);
         } else {
-          el.innerHTML === ' ' || el.innerHTML === '2024' ? this.dateSetter('2023', type) : this.dateSetter('2023', type);
+          this.dateSetter(el?.innerHTML === '' ? arr[1]?.innerHTML : arr[index + 1]?.innerHTML, type);
         }
       } else {
-        if (elTop <= containerTop) {
-          this.dateSetter(arr[index + 1].innerHTML === ' ' ? '1' : arr[index + 1].innerHTML, type);
-        } else {
-          const res = isNaN(parseInt(el.innerHTML)) ? arr[len - 2].innerHTML : arr[index < len - 1 && index - 1].innerHTML;
-          this.dateSetter(res, type);
-        }
+        const res = isNaN(parseInt(el?.innerHTML)) ? arr[len - 2]?.innerHTML : arr[index < len - 1 && index - 1]?.innerHTML;
+        this.dateSetter(res, type);
       }
     }
   }
@@ -101,7 +103,7 @@ export class Idk22 {
    */
   connectedCallback() {
     const emptyStr = '';
-    const arr = this.monthArrayReturn();
+    const arr = this.monthArrayReturn().slice(this.limits.lower, this.limits.upper + 1);
     arr.push(emptyStr);
     arr.unshift(emptyStr);
     this.month = arr;
@@ -111,11 +113,11 @@ export class Idk22 {
     const options = {
       h: {
         root: this.monthScrollPortRef,
-        threshold: 1,
+        threshold: .8,
       },
       ampm: {
         root: this.yearSelRefScroll,
-        threshold: 1,
+        threshold: .8,
       },
     };
     /* ----------------------------------
@@ -166,9 +168,7 @@ export class Idk22 {
     //       top: 30 * 4,
     //       behavior: 'smooth',
     //     });
-    console.log(this.monthSelRef.textContent, this.monthScrollPortRef.querySelector('.scrollport'));
     const monthIndex = this.month.indexOf(this.monthSelRef.textContent);
-    console.log(monthIndex, this.month);
     this.monthScrollPortRef.querySelector('.scrollport').scrollTo({
       top: 33 * 1,
       behavior: 'smooth',

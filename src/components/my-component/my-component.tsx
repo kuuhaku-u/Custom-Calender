@@ -1,4 +1,4 @@
-import { Component, Prop, h, Watch, EventEmitter, State, Event, Host, Fragment } from '@stencil/core';
+import { Component, Prop, h, Watch, EventEmitter, State, Event, Host, Fragment, Listen } from '@stencil/core';
 import { CalendarEntry } from '../../utils/calendar-entry';
 import { Calendar } from '../../utils/calendar';
 import '@tec-registry/nest-notification-modal-dialog';
@@ -8,8 +8,8 @@ import '@tec-registry/nest-notification-modal-dialog';
   shadow: true,
 })
 export class MyComponent {
-  @Prop() dayNames = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
-  @Prop() monthNames = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+  @Prop() dayNames = [];
+  @Prop() monthNames = [];
   @Prop() showFillDays = true;
   @State() date = Calendar.getToday();
   @State() daysInMonth: number[];
@@ -17,7 +17,7 @@ export class MyComponent {
   @State() eventDates = [];
   @State() disableCrossForArrowForward = false;
   @State() limitUpper = 71;
-  @State() limitLower = 33;
+  @State() limitLower = 28;
   @State() disableCrossForArrowBackward = false;
   @State() openModal = false;
   @State() all = false;
@@ -40,7 +40,6 @@ export class MyComponent {
   readonly today: CalendarEntry;
   private llDate: any;
   private ulDate: any;
-  private llDateArr: any[] = [];
   private ulDateArr: any[] = [];
   constructor() {
     this.today = Calendar.getToday();
@@ -134,7 +133,7 @@ export class MyComponent {
       this.ulDateArr = [];
       this.ulDateArr = this.daysInMonth.slice(indices[0], indices[1]);
       const fg = this.ulDateArr.indexOf(lowerLimitDate);
-      this.ulDateArr = this.ulDateArr.splice(0,fg);
+      this.ulDateArr = this.ulDateArr.splice(0, fg);
     } else {
       this.ulDateArr = [];
     }
@@ -183,6 +182,11 @@ export class MyComponent {
       return;
     }
   };
+  @Listen('eveIdk')
+  lkk(e) {
+    console.log(e.detail);
+    this.all = !e.detail;
+  }
   getDigitClassNames = (day: number, month: number, year: number, index: number): string => {
     let classNameDigit = [];
     if (day.toString().length === 1) {
@@ -227,13 +231,18 @@ export class MyComponent {
               {this.monthNames[date.month - 1]}
             </div>
           </div>
-          <div part="calender-part-arrows">
-            <span onClick={this.switchToPreviousMonth} style={{ opacity: this.disableCrossForArrowBackward ? '.3' : '1  ' }} class="arrows" part="calender-part-arrows-left">
+          <div part="calender-part-arrows" style={{ width: '50px',display:"flex" }}>
+            <div
+              onClick={this.switchToPreviousMonth}
+              style={{ opacity: this.disableCrossForArrowBackward ? '.3' : '1  ', width: '25px' }}
+              // class="arrows"
+              part="calender-part-arrows-left"
+            >
               {'<'}
-            </span>
-            <span onClick={this.switchToNextMonth} style={{ opacity: this.disableCrossForArrowForward ? '.3' : '1' }} part="calender-part-arrows-right">
+            </div>
+            <div onClick={this.switchToNextMonth} style={{ opacity: this.disableCrossForArrowForward ? '.3' : '1', width: '25px' }} part="calender-part-arrows-right">
               {'>'}
-            </span>
+            </div>
           </div>
         </header>
         <div class="day-names" part="calender-part-day-name-container">
@@ -264,7 +273,7 @@ export class MyComponent {
     const upperLimit = this.addDays(new Date(), this.limitUpper).getMonth() + 1;
     const lowerLimit = this.subDays(new Date(), this.limitLower).getMonth() + 1;
     return (
-      <div onClick={() => (this.all = false)}>
+      <div>
         <idk-2 selectedMonth="June" stuff={{ upper: upperLimit, lower: lowerLimit }} />
       </div>
     );

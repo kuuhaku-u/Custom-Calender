@@ -16,10 +16,14 @@ export namespace Components {
         "limits": any;
     }
     interface MyComponent {
-        "dayNames": string[];
-        "monthNames": string[];
+        "dayNames": any[];
+        "monthNames": any[];
         "showFillDays": boolean;
     }
+}
+export interface Idk2CustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLIdk2Element;
 }
 export interface Idk22CustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -56,6 +60,7 @@ declare global {
 }
 declare namespace LocalJSX {
     interface Idk2 {
+        "onEveIdk"?: (event: Idk2CustomEvent<any>) => void;
         "selectedMonth"?: any;
         "stuff"?: any;
     }
@@ -65,8 +70,8 @@ declare namespace LocalJSX {
         "onSelectedDate"?: (event: Idk22CustomEvent<{ month: string | number; year: string }>) => void;
     }
     interface MyComponent {
-        "dayNames"?: string[];
-        "monthNames"?: string[];
+        "dayNames"?: any[];
+        "monthNames"?: any[];
         "onDayChanged"?: (event: MyComponentCustomEvent<CalendarEntry>) => void;
         "onMonthChanged"?: (event: MyComponentCustomEvent<CalendarEntry>) => void;
         "showFillDays"?: boolean;
