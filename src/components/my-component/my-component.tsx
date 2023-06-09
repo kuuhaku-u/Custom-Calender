@@ -13,6 +13,7 @@ export class MyComponent {
   @Prop() showFillDays = true;
   @State() date = Calendar.getToday();
   @State() daysInMonth: number[];
+  @State() wheelSelMonth = 0;
   @State() selectedDate: CalendarEntry;
   @State() eventDates = [];
   @State() disableCrossForArrowForward = false;
@@ -184,8 +185,42 @@ export class MyComponent {
   };
   @Listen('eveIdk')
   lkk(e) {
-    console.log(e.detail);
-    this.all = !e.detail;
+    this.all = !e.detail.clicked;
+    this.wheelSelMonth = e.detail.indexOfMonth;
+    this.date.month = this.wheelSelMonth;
+    console.log(this.wheelSelMonth);
+    const upperLimit = this.addDays(new Date(), this.limitUpper).getMonth();
+    const upperLimitDay = this.addDays(new Date(), this.limitUpper).getDate();
+    if (this.date.month !== 12) {
+      this.date.month += 1;
+    } else {
+      this.date.month = 1;
+      this.date.year += 1;
+    }
+    delete this.date.day;
+    this.setCalendarDetails();
+    this.monthChangedHandler(this.date);
+    this.disableCrossForArrowBackward = false;
+    if (this.date.month === upperLimit) {
+      const searchValue = 1;
+      const indices = this.daysInMonth.reduce((acc, currentElement, currentIndex) => {
+        if (currentElement === searchValue) {
+          acc.push(currentIndex);
+        }
+        return acc;
+      }, []);
+      this.ulDateArr = this.daysInMonth.slice(indices[0], indices[1]);
+      const fg = this.ulDateArr.indexOf(upperLimitDay);
+      this.ulDateArr = this.ulDateArr.splice(fg);
+    } else {
+      this.ulDateArr = [];
+    }
+    if (upperLimit < this.date.month) {
+      this.disableCrossForArrowForward = true;
+    }
+    if (this.disableCrossForArrowForward) {
+      return;
+    }
   }
   getDigitClassNames = (day: number, month: number, year: number, index: number): string => {
     let classNameDigit = [];
@@ -223,6 +258,8 @@ export class MyComponent {
   }
   renderAll = () => {
     const date = this.getValidDate();
+    date.month = this.wheelSelMonth === 0 ? date.month : this.wheelSelMonth;
+    // console.log(this.date);
     return (
       <div class="calendar material" part="calender-container-part">
         <header part="full-calender-part">
@@ -231,7 +268,7 @@ export class MyComponent {
               {this.monthNames[date.month - 1]}
             </div>
           </div>
-          <div part="calender-part-arrows" style={{ width: '50px',display:"flex" }}>
+          <div part="calender-part-arrows" style={{ width: '50px', display: 'flex' }}>
             <div
               onClick={this.switchToPreviousMonth}
               style={{ opacity: this.disableCrossForArrowBackward ? '.3' : '1  ', width: '25px' }}

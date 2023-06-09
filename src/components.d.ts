@@ -67,7 +67,7 @@ declare namespace LocalJSX {
     interface Idk22 {
         "currentMonth"?: string;
         "limits"?: any;
-        "onSelectedDate"?: (event: Idk22CustomEvent<{ month: string | number; year: string }>) => void;
+        "onSelectedDate"?: (event: Idk22CustomEvent<{ monthIndex: Number; month: string | number; year: string }>) => void;
     }
     interface MyComponent {
         "dayNames"?: any[];
