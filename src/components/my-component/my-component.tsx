@@ -1,6 +1,6 @@
 import { Component, Prop, h, Watch, EventEmitter, State, Event, Host, Fragment, Listen } from '@stencil/core';
 import { CalendarEntry } from '../../utils/calendar-entry';
-import { Calendar } from '../../utils/calendar';
+import { Calendar, addDays, subDays } from '../../utils/calendar';
 import '@tec-registry/nest-notification-modal-dialog';
 @Component({
   tag: 'my-component',
@@ -17,8 +17,9 @@ export class MyComponent {
   @State() selectedDate: CalendarEntry;
   @State() eventDates = [];
   @State() disableCrossForArrowForward = false;
-  @State() limitUpper = 71;
-  @State() limitLower = 28;
+  @State() limitUpper = 5;
+  @State() limitLower = 5;
+  @State() currentMonth = new Date().getMonth() + 1;
   @State() disableCrossForArrowBackward = false;
   @State() openModal = false;
   @State() all = false;
@@ -39,8 +40,8 @@ export class MyComponent {
   private fillStartCount: number;
   private fillEndCount: number;
   readonly today: CalendarEntry;
-  private llDate: any;
-  private ulDate: any;
+  // private llDate: any;
+  // private ulDate: any;
   private ulDateArr: any[] = [];
   constructor() {
     this.today = Calendar.getToday();
@@ -52,21 +53,17 @@ export class MyComponent {
     }
   }
   componentWillLoad() {
-    this.ulDate = this.addDays(new Date(), this.limitUpper).toISOString().split('T')[0];
-    this.llDate = this.subDays(new Date(), this.limitLower).toISOString().split('T')[0];
+    // this.ulDate = addDays(new Date(), this.limitUpper).toISOString().split('T')[0];
+    // this.llDate = subDays(new Date(), this.limitLower).toISOString().split('T')[0];
     this.setCalendarDetails();
   }
-  addDays(date: Date, days: number | string): Date {
-    date.setDate(date.getDate() + parseInt(days as any));
-    return date;
-  }
-  subDays(date: Date, days: number | string): Date {
-    date.setDate(date.getDate() - parseInt(days as any));
-    return date;
-  }
   setCalendarDetails(): void {
-    const upperLimit = this.addDays(new Date(), this.limitUpper).getMonth() + 1;
-    const lowerLimit = this.subDays(new Date(), this.limitLower).getMonth() + 1;
+    const lowerLimitDate = subDays(new Date(), this.limitLower).getDate();
+    const upperLimitDay = addDays(new Date(), this.limitUpper).getDate();
+    console.log(subDays(new Date(), this.limitLower).toISOString(), addDays(new Date(), this.limitUpper).toISOString());
+
+    const upperLimit = addDays(new Date(), this.limitUpper).getMonth() + 1;
+    const lowerLimit = subDays(new Date(), this.limitLower).getMonth() + 1;
     if (this.date?.month > upperLimit) {
       this.date.month = upperLimit;
       return;
@@ -80,10 +77,25 @@ export class MyComponent {
     this.daysInMonth = calendar.getCalendarDays();
     this.fillStartCount = calendar.getFillStartCount();
     this.fillEndCount = calendar.daysInCalendar - calendar.getFillEndCount();
+    this.ulDateArr = this.daysInMonth;
+    if (lowerLimit === this.currentMonth) {
+      this.disableCrossForArrowBackward = true;
+      const loIndex = this.ulDateArr.indexOf(upperLimitDay);
+      this.ulDateArr = this.ulDateArr.slice(loIndex, this.ulDateArr.length);
+      console.log(this.ulDateArr);
+    }
+    if (upperLimit === this.currentMonth) {
+      this.disableCrossForArrowForward = true;
+      // const upIndex = this.ulDateArr.indexOf(lowerLimitDate);
+      // this.ulDateArr = this.ulDateArr.slice(0, upIndex);
+    }
   }
   getValidDate(): CalendarEntry {
-    const upperLimit = this.addDays(new Date(), this.limitUpper).getMonth();
-    const lowerLimit = this.subDays(new Date(), this.limitLower).getMonth();
+    if (this.date === undefined) {
+      return;
+    }
+    const upperLimit = addDays(new Date(), this.limitUpper).getMonth();
+    const lowerLimit = subDays(new Date(), this.limitLower).getMonth();
     if (this.date?.month > upperLimit + 1) {
       return;
     }
@@ -112,8 +124,20 @@ export class MyComponent {
   }
   switchToPreviousMonth = (): void => {
     this.date = this.getValidDate();
-    const lowerLimit = this.subDays(new Date(), this.limitLower).getMonth() + 1;
-    const lowerLimitDate = this.subDays(new Date(), this.limitLower).getDate();
+    const lowerLimit = subDays(new Date(), this.limitLower).getMonth() + 1;
+    const lowerLimitDate = subDays(new Date(), this.limitLower).getDate();
+    const upperLimitDay = addDays(new Date(), this.limitUpper).getDate();
+    if (lowerLimit === this.currentMonth) {
+      this.date.month = this.currentMonth;
+      this.disableCrossForArrowBackward = true;
+      const upIndex = this.ulDateArr.indexOf(lowerLimitDate);
+      const loIndex = this.ulDateArr.indexOf(upperLimitDay);
+      this.ulDateArr = this.ulDateArr.slice(loIndex, upIndex);
+      return;
+    }
+    if (this.disableCrossForArrowBackward) {
+      return;
+    }
     if (this.date.month !== 1) {
       this.date.month -= 1;
     } else {
@@ -143,15 +167,27 @@ export class MyComponent {
     this.disableCrossForArrowForward = false;
     if (lowerLimit >= this.date.month) {
       this.disableCrossForArrowBackward = true;
-    }
-    if (this.disableCrossForArrowBackward) {
-      return;
+      if (this.disableCrossForArrowBackward) {
+        return;
+      }
     }
   };
   switchToNextMonth = (): void => {
     this.date = this.getValidDate();
-    const upperLimit = this.addDays(new Date(), this.limitUpper).getMonth();
-    const upperLimitDay = this.addDays(new Date(), this.limitUpper).getDate();
+    const upperLimit = addDays(new Date(), this.limitUpper).getMonth();
+    const upperLimitDay = addDays(new Date(), this.limitUpper).getDate();
+    const lowerLimitDate = subDays(new Date(), this.limitLower).getDate();
+    if (upperLimit === this.currentMonth) {
+      this.date.month = this.currentMonth;
+      this.disableCrossForArrowForward = true;
+      const upIndex = this.ulDateArr.indexOf(lowerLimitDate);
+      const loIndex = this.ulDateArr.indexOf(upperLimitDay);
+      this.ulDateArr = this.ulDateArr.slice(loIndex, upIndex);
+      return;
+    }
+    if (this.disableCrossForArrowForward) {
+      return;
+    }
     if (this.date.month !== 12) {
       this.date.month += 1;
     } else {
@@ -188,9 +224,8 @@ export class MyComponent {
     this.all = !e.detail.clicked;
     this.wheelSelMonth = e.detail.indexOfMonth;
     this.date.month = this.wheelSelMonth;
-    console.log(this.wheelSelMonth);
-    const upperLimit = this.addDays(new Date(), this.limitUpper).getMonth();
-    const upperLimitDay = this.addDays(new Date(), this.limitUpper).getDate();
+    const upperLimit = addDays(new Date(), this.limitUpper).getMonth();
+    const upperLimitDay = addDays(new Date(), this.limitUpper).getDate();
     if (this.date.month !== 12) {
       this.date.month += 1;
     } else {
@@ -259,7 +294,6 @@ export class MyComponent {
   renderAll = () => {
     const date = this.getValidDate();
     date.month = this.wheelSelMonth === 0 ? date.month : this.wheelSelMonth;
-    // console.log(this.date);
     return (
       <div class="calendar material" part="calender-container-part">
         <header part="full-calender-part">
@@ -307,8 +341,8 @@ export class MyComponent {
     );
   };
   renderOnly() {
-    const upperLimit = this.addDays(new Date(), this.limitUpper).getMonth() + 1;
-    const lowerLimit = this.subDays(new Date(), this.limitLower).getMonth() + 1;
+    const upperLimit = addDays(new Date(), this.limitUpper).getMonth() + 1;
+    const lowerLimit = subDays(new Date(), this.limitLower).getMonth() + 1;
     return (
       <div>
         <idk-2 selectedMonth="June" stuff={{ upper: upperLimit, lower: lowerLimit }} />
@@ -321,7 +355,7 @@ export class MyComponent {
         <button onClick={() => (this.openModal = true)}>Click</button>
         <nest-notification-modal-dialog open={this.openModal}>
           <div class="all" part="calender-move-property-part" onMouseLeave={() => (this.openModal = false)}>
-            {this.openModal && <Fragment>{!this.all ? this.renderAll() : this.renderOnly()}</Fragment>}
+            {this.openModal && <Fragment>{true ? this.renderAll() : this.renderOnly()}</Fragment>}
           </div>
         </nest-notification-modal-dialog>
       </Host>

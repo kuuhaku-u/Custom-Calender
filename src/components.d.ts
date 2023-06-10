@@ -12,8 +12,9 @@ export namespace Components {
         "stuff": any;
     }
     interface Idk22 {
-        "currentMonth": string;
+        "currentMonth": number;
         "limits": any;
+        "monthArray": any[];
     }
     interface MyComponent {
         "dayNames": any[];
@@ -65,8 +66,9 @@ declare namespace LocalJSX {
         "stuff"?: any;
     }
     interface Idk22 {
-        "currentMonth"?: string;
+        "currentMonth"?: number;
         "limits"?: any;
+        "monthArray"?: any[];
         "onSelectedDate"?: (event: Idk22CustomEvent<{ monthIndex: Number; month: string | number; year: string }>) => void;
     }
     interface MyComponent {

@@ -79,3 +79,11 @@ export class Calendar {
     };
   }
 }
+export function  addDays(date: Date, days: number | string): Date {
+  date.setDate(date.getDate() + parseInt(days as any));
+  return date;
+}
+export function subDays(date: Date, days: number | string): Date {
+  date.setDate(date.getDate() - parseInt(days as any));
+  return date;
+}

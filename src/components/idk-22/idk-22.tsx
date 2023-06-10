@@ -6,8 +6,8 @@ import { Component, EventEmitter, Host, State, Watch, h, Event, Prop } from '@st
 })
 export class Idk22 {
   @Prop() limits: any;
-  @Prop() currentMonth = 'June';
-  @State() hr12Format: any[] = [' ', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', ' '];
+  @Prop() currentMonth = new Date().getMonth();
+  @Prop() monthArray: any[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   @State() month: any[];
   @State() hour: string | number;
   @State() ampm: string;
@@ -23,7 +23,7 @@ export class Idk22 {
    *@HelperFunction
    */
   monthArrayReturn(): any[] {
-    return this.hr12Format;
+    return this.monthArray;
   }
   setClassSelected(arr, val) {
     try {
@@ -102,10 +102,11 @@ export class Idk22 {
    * @LifecycleMethod
    */
   connectedCallback() {
-    const emptyStr = '';
-    const arr = this.monthArrayReturn().slice(this.limits.lower, this.limits.upper + 1);
+    const emptyStr = ' ';
+    const arr = this.monthArrayReturn().slice(this.limits.lower - 1, this.limits.upper);
     arr.push(emptyStr);
     arr.unshift(emptyStr);
+    console.log(arr);
     this.month = arr;
   }
   componentDidLoad() {
@@ -151,23 +152,23 @@ export class Idk22 {
   @Watch('hour')
   emitHour() {
     this.setClassSelected(this.childElementsMonth, this.hour);
-    this.selectedDate.emit({ monthIndex: this.hr12Format.indexOf(this.hour), month: this.hour, year: this.ampm });
+    this.selectedDate.emit({ monthIndex: this.monthArray.indexOf(this.hour), month: this.hour, year: this.ampm });
   }
   @Watch('ampm')
   emitAMPM() {
     this.setClassSelected(this.childElementsYear, this.ampm);
-    this.selectedDate.emit({ monthIndex: this.hr12Format.indexOf(this.hour), month: this.hour, year: this.ampm });
+    this.selectedDate.emit({ monthIndex: this.monthArray.indexOf(this.hour), month: this.hour, year: this.ampm });
   }
   /**
    * Fire every time component get attached to DOM to scroll to  active time
    */
   initialScrollToActiveValue() {
-    // this.yearSelRef?.textContent === '2023'
-    //   ? null
-    //   : this.yearSelRefScroll.scrollTo({
-    //       top: 30 * 4,
-    //       behavior: 'smooth',
-    //     });
+    this.yearSelRef?.textContent === '2023'
+      ? null
+      : this.yearSelRefScroll.scrollTo({
+          top: 30 * 4,
+          behavior: 'smooth',
+        });
     const monthIndex = this.month.indexOf(this.monthSelRef.textContent);
     this.monthScrollPortRef.querySelector('.scrollport').scrollTo({
       top: 33 * 1,
