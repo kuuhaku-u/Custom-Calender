@@ -12,7 +12,7 @@ export class Idk2 {
   @Listen('selectedDate')
   df(e) {
     this.selectedMonth = e.detail.month;
-    this._monthIndex = e.detail.monthIndex;
+    this._monthIndex = e.detail.monthIndex+1;
   }
   renderHeader() {
     return (

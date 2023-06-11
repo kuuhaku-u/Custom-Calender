@@ -45,6 +45,7 @@ export class MyComponent {
   private _fillEndCount: number;
   readonly _today: CalendarEntry;
   private _lowerLimitDate: any;
+  private _currentMonth = new Date().getMonth() + 1;
   private _upperLimitDate: any;
   private _ulDateArr: any[] = [];
   private _upperLimitMonth: any;
@@ -196,6 +197,22 @@ export class MyComponent {
     this.setCalendarDetails();
     this.monthChangedHandler(this.date);
     this.disableCrossForArrowBackward = false;
+    if (this.date.month === this._lowerLimitMonth && this.date.year === 2023) {
+      this.disableCrossForArrowBackward = true;
+      const searchValue = 1;
+      const indices = this.daysInMonth.reduce((acc, currentElement, currentIndex) => {
+        if (currentElement === searchValue) {
+          acc.push(currentIndex);
+        }
+        return acc;
+      }, []);
+      this._ulDateArr = [];
+      this._ulDateArr = this.daysInMonth.slice(indices[0], indices[1]);
+      const indexOfLimit = this._ulDateArr.indexOf(this._lowerLimitDate);
+      this._ulDateArr = this._ulDateArr.splice(0, indexOfLimit);
+    } else {
+      this._ulDateArr = [];
+    }
     if (this.date.month === this._upperLimitMonth) {
       const searchValue = 1;
       const indices = this.daysInMonth.reduce((acc, currentElement, currentIndex) => {
@@ -221,15 +238,49 @@ export class MyComponent {
    * @listeners
    *
    */
-  @Listen('eveIdk')
-  lkk(e) {
-    this.showTheWheel = !e.detail;
+  @Listen('selectedMonthEvent')
+  wheelListener(e) {
+    this.showTheWheel = false;
+    this.date.month = e.detail.indexOfMonth;
+    this.setCalendarDetails();
+    if (this._currentMonth >= e.detail.indexOfMonth) {
+      if (this.date.month === this._lowerLimitMonth && this.date.year === 2023) {
+        const searchValue = 1;
+        const indices = this.daysInMonth.reduce((acc, currentElement, currentIndex) => {
+          if (currentElement === searchValue) {
+            acc.push(currentIndex);
+          }
+          return acc;
+        }, []);
+        this._ulDateArr = [];
+        this._ulDateArr = this.daysInMonth.slice(indices[0], indices[1]);
+        const indexOfLimit = this._ulDateArr.indexOf(this._lowerLimitDate);
+        this._ulDateArr = this._ulDateArr.splice(0, indexOfLimit);
+      } else {
+        this._ulDateArr = [];
+      }
+    } else {
+      if (this.date.month === this._upperLimitMonth) {
+        this.disableCrossForArrowForward = true;
+        const searchValue = 1;
+        const indices = this.daysInMonth.reduce((acc, currentElement, currentIndex) => {
+          if (currentElement === searchValue) {
+            acc.push(currentIndex);
+          }
+          return acc;
+        }, []);
+        this._ulDateArr = this.daysInMonth.slice(indices[0], indices[1]);
+        const indexOfLimit = this._ulDateArr.indexOf(this._upperLimitDate);
+        this._ulDateArr = this._ulDateArr.splice(indexOfLimit + 1);
+      } else {
+        this._ulDateArr = [];
+      }
+    }
   }
   /**
    * @General_FUNCTIONS
    *
    */
-
   getDigitClassNames = (day: number, month: number, year: number, index: number): string => {
     let classNameDigit = [];
     if (day.toString().length === 1) {
