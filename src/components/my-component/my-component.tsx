@@ -1,6 +1,6 @@
 import { Component, Prop, h, Watch, EventEmitter, State, Event, Host, Fragment, Listen } from '@stencil/core';
 import { CalendarEntry } from '../../utils/calendar-entry';
-import { Calendar } from '../../utils/calendar';
+import { Calendar, addDays, limitsDate, limitsMonth, subDays } from '../../utils/calendar';
 import '@tec-registry/nest-notification-modal-dialog';
 @Component({
   tag: 'my-component',
@@ -8,19 +8,25 @@ import '@tec-registry/nest-notification-modal-dialog';
   shadow: true,
 })
 export class MyComponent {
+  /**
+   * @props
+   */
   @Prop() dayNames = [];
   @Prop() monthNames = [];
   @Prop() showFillDays = true;
+  @Prop() limitLower = 28;
+  @Prop() limitUpper = 71;
+  /**
+   * @states
+   */
   @State() date = Calendar.getToday();
   @State() daysInMonth: number[];
   @State() selectedDate: CalendarEntry;
   @State() eventDates = [];
   @State() disableCrossForArrowForward = false;
-  @State() limitUpper = 71;
-  @State() limitLower = 28;
   @State() disableCrossForArrowBackward = false;
   @State() openModal = false;
-  @State() all = false;
+  @State() showTheWheel = false;
   @Event({
     eventName: 'dayChanged',
     composed: true,
@@ -35,37 +41,48 @@ export class MyComponent {
     bubbles: true,
   })
   monthChanged: EventEmitter<CalendarEntry>;
-  private fillStartCount: number;
-  private fillEndCount: number;
-  readonly today: CalendarEntry;
-  private llDate: any;
-  private ulDate: any;
-  private ulDateArr: any[] = [];
+  private _fillStartCount: number;
+  private _fillEndCount: number;
+  readonly _today: CalendarEntry;
+  private _lowerLimitDate: any;
+  private _upperLimitDate: any;
+  private _ulDateArr: any[] = [];
+  private _upperLimitMonth: any;
+  private _lowerLimitMonth: any;
   constructor() {
-    this.today = Calendar.getToday();
+    this._today = Calendar.getToday();
   }
+  /**
+   *
+   * @param date
+   * @function emitDate
+   */
   @Watch('date')
   watchDate(date: CalendarEntry): void {
     if ('month' in date && 'year' in date) {
       this.selectedDate = date;
     }
   }
+  /**
+   *
+   * @function Call_the_SetCalendarDetails
+   */
   componentWillLoad() {
-    this.ulDate = this.addDays(new Date(), this.limitUpper).toISOString().split('T')[0];
-    this.llDate = this.subDays(new Date(), this.limitLower).toISOString().split('T')[0];
+    this._upperLimitDate = addDays(new Date(), this.limitUpper).toISOString().split('T')[0];
+    this._lowerLimitDate = subDays(new Date(), this.limitLower).toISOString().split('T')[0];
+    this._upperLimitMonth = limitsMonth(this.limitUpper, this.limitLower).upperLimitMonth;
+    this._lowerLimitMonth = limitsMonth(this.limitUpper, this.limitLower).lowerLimitMonth;
+    this._upperLimitDate = limitsDate(this.limitUpper, this.limitLower).upperLimitDate;
+    this._lowerLimitDate = limitsDate(this.limitUpper, this.limitLower).lowerLimitDate;
     this.setCalendarDetails();
   }
-  addDays(date: Date, days: number | string): Date {
-    date.setDate(date.getDate() + parseInt(days as any));
-    return date;
-  }
-  subDays(date: Date, days: number | string): Date {
-    date.setDate(date.getDate() - parseInt(days as any));
-    return date;
-  }
+  /**
+   *
+   * @function set_calendar_days
+   */
   setCalendarDetails(): void {
-    const upperLimit = this.addDays(new Date(), this.limitUpper).getMonth() + 1;
-    const lowerLimit = this.subDays(new Date(), this.limitLower).getMonth() + 1;
+    const upperLimit = addDays(new Date(), this.limitUpper).getMonth() + 1;
+    const lowerLimit = subDays(new Date(), this.limitLower).getMonth() + 1;
     if (this.date?.month > upperLimit) {
       this.date.month = upperLimit;
       return;
@@ -77,21 +94,19 @@ export class MyComponent {
     this.date = this.getValidDate();
     const calendar = new Calendar(this.date.year, this.date.month);
     this.daysInMonth = calendar.getCalendarDays();
-    this.fillStartCount = calendar.getFillStartCount();
-    this.fillEndCount = calendar.daysInCalendar - calendar.getFillEndCount();
+    this._fillStartCount = calendar.getFillStartCount();
+    this._fillEndCount = calendar.daysInCalendar - calendar.getFillEndCount();
   }
   getValidDate(): CalendarEntry {
-    const upperLimit = this.addDays(new Date(), this.limitUpper).getMonth();
-    const lowerLimit = this.subDays(new Date(), this.limitLower).getMonth();
-    if (this.date?.month > upperLimit + 1) {
+    if (this.date?.month > this._upperLimitMonth) {
       return;
     }
-    if (this.date?.month < lowerLimit + 1) {
+    if (this.date?.month < this._lowerLimitMonth) {
       return;
     }
     let date = this.date;
     if (!('month' in this.date && 'year' in this.date)) {
-      date = this.today;
+      date = this._today;
     }
     return date;
   }
@@ -111,8 +126,6 @@ export class MyComponent {
   }
   switchToPreviousMonth = (): void => {
     this.date = this.getValidDate();
-    const lowerLimit = this.subDays(new Date(), this.limitLower).getMonth() + 1;
-    const lowerLimitDate = this.subDays(new Date(), this.limitLower).getDate();
     if (this.date.month !== 1) {
       this.date.month -= 1;
     } else {
@@ -122,7 +135,7 @@ export class MyComponent {
     if (typeof this.date !== 'undefined') {
       delete this.date.day;
     }
-    if (this.date.month === lowerLimit) {
+    if (this.date.month === this._lowerLimitMonth && this.date.year === 2023) {
       const searchValue = 1;
       const indices = this.daysInMonth.reduce((acc, currentElement, currentIndex) => {
         if (currentElement === searchValue) {
@@ -130,17 +143,17 @@ export class MyComponent {
         }
         return acc;
       }, []);
-      this.ulDateArr = [];
-      this.ulDateArr = this.daysInMonth.slice(indices[0], indices[1]);
-      const fg = this.ulDateArr.indexOf(lowerLimitDate);
-      this.ulDateArr = this.ulDateArr.splice(0, fg);
+      this._ulDateArr = [];
+      this._ulDateArr = this.daysInMonth.slice(indices[0], indices[1]);
+      const indexOfLimit = this._ulDateArr.indexOf(this._lowerLimitDate);
+      this._ulDateArr = this._ulDateArr.splice(0, indexOfLimit);
     } else {
-      this.ulDateArr = [];
+      this._ulDateArr = [];
     }
     this.setCalendarDetails();
     this.monthChangedHandler(this.date);
     this.disableCrossForArrowForward = false;
-    if (lowerLimit >= this.date.month) {
+    if (this._lowerLimitMonth >= this.date.month) {
       this.disableCrossForArrowBackward = true;
     }
     if (this.disableCrossForArrowBackward) {
@@ -149,8 +162,6 @@ export class MyComponent {
   };
   switchToNextMonth = (): void => {
     this.date = this.getValidDate();
-    const upperLimit = this.addDays(new Date(), this.limitUpper).getMonth();
-    const upperLimitDay = this.addDays(new Date(), this.limitUpper).getDate();
     if (this.date.month !== 12) {
       this.date.month += 1;
     } else {
@@ -161,7 +172,7 @@ export class MyComponent {
     this.setCalendarDetails();
     this.monthChangedHandler(this.date);
     this.disableCrossForArrowBackward = false;
-    if (this.date.month === upperLimit + 1) {
+    if (this.date.month === this._upperLimitMonth) {
       const searchValue = 1;
       const indices = this.daysInMonth.reduce((acc, currentElement, currentIndex) => {
         if (currentElement === searchValue) {
@@ -169,13 +180,13 @@ export class MyComponent {
         }
         return acc;
       }, []);
-      this.ulDateArr = this.daysInMonth.slice(indices[0], indices[1]);
-      const fg = this.ulDateArr.indexOf(upperLimitDay);
-      this.ulDateArr = this.ulDateArr.splice(fg);
+      this._ulDateArr = this.daysInMonth.slice(indices[0], indices[1]);
+      const indexOfLimit = this._ulDateArr.indexOf(this._upperLimitDate);
+      this._ulDateArr = this._ulDateArr.splice(indexOfLimit + 1);
     } else {
-      this.ulDateArr = [];
+      this._ulDateArr = [];
     }
-    if (upperLimit < this.date.month) {
+    if (this._upperLimitMonth < this.date.month) {
       this.disableCrossForArrowForward = true;
     }
     if (this.disableCrossForArrowForward) {
@@ -184,8 +195,7 @@ export class MyComponent {
   };
   @Listen('eveIdk')
   lkk(e) {
-    console.log(e.detail);
-    this.all = !e.detail;
+    this.showTheWheel = !e.detail;
   }
   getDigitClassNames = (day: number, month: number, year: number, index: number): string => {
     let classNameDigit = [];
@@ -205,7 +215,11 @@ export class MyComponent {
   };
   isToday(day: number, month: number, year: number, index: number): boolean {
     return (
-      this.today.day === day && this.today.month === month && this.today.year === year && this.today.year === year && !(index < this.fillStartCount || index >= this.fillEndCount)
+      this._today.day === day &&
+      this._today.month === month &&
+      this._today.year === year &&
+      this._today.year === year &&
+      !(index < this._fillStartCount || index >= this._fillEndCount)
     );
   }
   isSelectedDay(day: number, index: number) {
@@ -214,37 +228,47 @@ export class MyComponent {
       this.selectedDate.day === day &&
       this.selectedDate.month === this.date.month &&
       this.selectedDate.year === this.date.year &&
-      !(index < this.fillStartCount || index >= this.fillEndCount)
+      !(index < this._fillStartCount || index >= this._fillEndCount)
     );
   }
   isDisabled(day) {
-    const isTrue = this.ulDateArr.find(el => el == day);
+    const isTrue = this._ulDateArr.find(el => el == day);
     return isTrue ? 'dim' : 'not-dim';
+  }
+  /**
+   *
+   * @returns
+   * @_______HTML
+   */
+  renderArrows() {
+    return (
+      <div part="calender-part-arrows" style={{ width: '50px', display: 'flex' }}>
+        <div onClick={this.switchToPreviousMonth} style={{ opacity: this.disableCrossForArrowBackward ? '.3' : '1  ', width: '25px' }} part="calender-part-arrows-left">
+          {'<'}
+        </div>
+        <div onClick={this.switchToNextMonth} style={{ opacity: this.disableCrossForArrowForward ? '.3' : '1', width: '25px' }} part="calender-part-arrows-right">
+          {'>'}
+        </div>
+      </div>
+    );
+  }
+  renderHeader(date) {
+    return (
+      <header part="full-calender-part">
+        <div part="calender-part-icons">
+          <div onClick={() => (this.showTheWheel = true)} style={{ cursor: 'pointer' }} part="calender-part-month-name">
+            {this.monthNames[date.month - 1]}
+          </div>
+        </div>
+        {this.renderArrows()}
+      </header>
+    );
   }
   renderAll = () => {
     const date = this.getValidDate();
     return (
       <div class="calendar material" part="calender-container-part">
-        <header part="full-calender-part">
-          <div part="calender-part-icons">
-            <div onClick={() => (this.all = true)} style={{ cursor: 'pointer' }} part="calender-part-month-name">
-              {this.monthNames[date.month - 1]}
-            </div>
-          </div>
-          <div part="calender-part-arrows" style={{ width: '50px',display:"flex" }}>
-            <div
-              onClick={this.switchToPreviousMonth}
-              style={{ opacity: this.disableCrossForArrowBackward ? '.3' : '1  ', width: '25px' }}
-              // class="arrows"
-              part="calender-part-arrows-left"
-            >
-              {'<'}
-            </div>
-            <div onClick={this.switchToNextMonth} style={{ opacity: this.disableCrossForArrowForward ? '.3' : '1', width: '25px' }} part="calender-part-arrows-right">
-              {'>'}
-            </div>
-          </div>
-        </header>
+        {this.renderHeader(date)}
         <div class="day-names" part="calender-part-day-name-container">
           {this.dayNames.map(dayName => (
             <span part="calender-part-day-name">{dayName}</span>
@@ -253,7 +277,7 @@ export class MyComponent {
         <div class="days-in-month" part="calender-part-day-name-month-container">
           {this.daysInMonth.map((day, index) => {
             const classNameDigit = this.getDigitClassNames(day, date.month, date.year, index);
-            if (index < this.fillStartCount || index >= this.fillEndCount) {
+            if (index < this._fillStartCount || index >= this._fillEndCount) {
               return <span class="disabled">{this.showFillDays ? day : ''}</span>;
             } else {
               return (
@@ -270,21 +294,21 @@ export class MyComponent {
     );
   };
   renderOnly() {
-    const upperLimit = this.addDays(new Date(), this.limitUpper).getMonth() + 1;
-    const lowerLimit = this.subDays(new Date(), this.limitLower).getMonth() + 1;
     return (
       <div>
-        <idk-2 selectedMonth="June" stuff={{ upper: upperLimit, lower: lowerLimit }} />
+        <idk-2 selectedMonth="June" stuff={{ upper: this._upperLimitMonth, lower: this._lowerLimitMonth }} />
       </div>
     );
   }
   render() {
     return (
       <Host>
+        {this._upperLimitDate}__==Upper&&Lower==__{this._lowerLimitDate}
+        <br />
         <button onClick={() => (this.openModal = true)}>Click</button>
         <nest-notification-modal-dialog open={this.openModal}>
           <div class="all" part="calender-move-property-part" onMouseLeave={() => (this.openModal = false)}>
-            {this.openModal && <Fragment>{!this.all ? this.renderAll() : this.renderOnly()}</Fragment>}
+            {this.openModal && <Fragment>{!this.showTheWheel ? this.renderAll() : this.renderOnly()}</Fragment>}
           </div>
         </nest-notification-modal-dialog>
       </Host>

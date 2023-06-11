@@ -7,11 +7,11 @@ import { Component, EventEmitter, Host, State, Watch, h, Event, Prop } from '@st
 export class Idk22 {
   @Prop() limits: any;
   @Prop() currentMonth = 'June';
-  @State() hr12Format: any[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  @State() monthArray: any[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   @State() month: any[];
   @State() hour: string | number;
   @State() ampm: string;
-  @Event() selectedDate: EventEmitter<{ month: string | number; year: string }>;
+  @Event() selectedDate: EventEmitter<{ monthIndex: Number; month: string | number; year: string }>;
   year = [' ', new Date().getFullYear().toString(), ' '];
   childElementsMonth: unknown = [];
   childElementsYear: unknown = [];
@@ -23,7 +23,7 @@ export class Idk22 {
    *@HelperFunction
    */
   monthArrayReturn(): any[] {
-    return this.hr12Format;
+    return this.monthArray;
   }
   setClassSelected(arr, val) {
     try {
@@ -51,7 +51,6 @@ export class Idk22 {
     this.childElementsYear = cells;
   }
   dateSetter(data, type) {
-    console.log(data);
     if (type === 'hour') {
       return (this.hour = data);
     } else {
@@ -75,7 +74,6 @@ export class Idk22 {
       if (Math.round(elTop) - 1 <= containerTop || Math.round(elTop) - 1 < 200) {
         this.dateSetter(el?.innerHTML === '' ? arr[1]?.innerHTML : arr[index + 1]?.innerHTML, type);
       } else {
-        console.log(el.innerHTML,"LL",arr[len-2]?.innerHTML, el?.innerHTML === ' ');
         const res = el?.innerHTML === ''  ? arr[len-2]?.innerHTML : arr[index - 1]?.innerHTML;
         this.dateSetter(res, type);
       }
@@ -142,12 +140,12 @@ export class Idk22 {
   @Watch('hour')
   emitHour() {
     this.setClassSelected(this.childElementsMonth, this.hour);
-    this.selectedDate.emit({ month: this.hour, year: this.ampm });
+    this.selectedDate.emit({ monthIndex: this.monthArray.indexOf(this.hour), month: this.hour, year: this.ampm });
   }
   @Watch('ampm')
   emitAMPM() {
     this.setClassSelected(this.childElementsYear, this.ampm);
-    this.selectedDate.emit({ month: this.hour, year: this.ampm });
+    this.selectedDate.emit({ monthIndex: this.monthArray.indexOf(this.hour), month: this.hour, year: this.ampm });
   }
   /**
    * Fire every time component get attached to DOM to scroll to  active time
@@ -186,13 +184,14 @@ export class Idk22 {
         {time}
       </div>
     ));
-  forMonthWheel = (arr, selection) =>
-    arr.map((time, index) => (
+  forMonthWheel = (arr, selection) => {
+    return arr.map((time, index) => (
       <div
         aria-label={time}
+        style={{ opacity: time == selection ? '1' : '.3' }}
         id={`hour_cell_${index}_id`}
         part={`hour-cell-${time == this.hour ? 'selected-part' : 'not-selected-part'}`}
-        class={`cell   ${time == selection && 'selected'} ${time === ' ' && 'hide'} `}
+        class={`cell  ${time == selection && 'selected'} ${time === ' ' && 'hide'} `}
         ref={el => {
           if (time !== selection) {
             return;
@@ -203,6 +202,7 @@ export class Idk22 {
         {time}
       </div>
     ));
+  };
   /**
    * --------------------------
    * @returns HTML
@@ -216,12 +216,12 @@ export class Idk22 {
       <div class="wheels" id="wheel">
         <div class="hour" id="hour_id" ref={el => (this.monthScrollPortRef = el as HTMLElement)}>
           <div class="scrollport  hour" id="hour_scrollport">
-            {this.forMonthWheel(this.month, this.currentMonth)}
+            {this.forMonthWheel(this.month, this.hour === undefined ? 'June' : this.hour)}
           </div>
         </div>
         <div class="ampm" id="ampm_id">
           <div class="scrollport" id="ampm_scrollport" ref={el => (this.yearSelRefScroll = el as HTMLElement)}>
-            {this.forYearWheel(this.year, '2023')}
+            {this.forYearWheel(this.year, this.ampm)}
           </div>
         </div>
       </div>
