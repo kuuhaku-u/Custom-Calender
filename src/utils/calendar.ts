@@ -105,3 +105,6 @@ export function limitsYear(upper, lower) {
     lowerLimitMonth: subDays(new Date(), lower).getUTCFullYear(),
   };
 }
+export function compareDates(dateOne, dateTwo) {
+    return new Date(dateOne) >= new Date(dateTwo);
+}

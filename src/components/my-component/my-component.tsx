@@ -1,6 +1,6 @@
 import { Component, Prop, h, Watch, EventEmitter, State, Event, Host, Fragment, Listen } from '@stencil/core';
 import { CalendarEntry } from '../../utils/calendar-entry';
-import { Calendar, addDays, limitsDate, limitsMonth, subDays } from '../../utils/calendar';
+import { Calendar, addDays, compareDates, limitsDate, limitsMonth, subDays } from '../../utils/calendar';
 import '@tec-registry/nest-notification-modal-dialog';
 @Component({
   tag: 'my-component',
@@ -45,6 +45,8 @@ export class MyComponent {
   private _fillEndCount: number;
   readonly _today: CalendarEntry;
   private _lowerLimitDate: any;
+  private _upperLimit: any;
+  private _lowerLimit: any;
   private _currentMonth = new Date().getMonth() + 1;
   private _upperLimitDate: any;
   private _ulDateArr: any[] = [];
@@ -69,8 +71,8 @@ export class MyComponent {
    * @function Call_the_SetCalendarDetails
    */
   componentWillLoad() {
-    this._upperLimitDate = addDays(new Date(), this.limitUpper).toISOString().split('T')[0];
-    this._lowerLimitDate = subDays(new Date(), this.limitLower).toISOString().split('T')[0];
+    this._upperLimit = addDays(new Date(), this.limitUpper);
+    this._lowerLimit = subDays(new Date(), this.limitLower);
     this._upperLimitMonth = limitsMonth(this.limitUpper, this.limitLower).upperLimitMonth;
     this._lowerLimitMonth = limitsMonth(this.limitUpper, this.limitLower).lowerLimitMonth;
     this._upperLimitDate = limitsDate(this.limitUpper, this.limitLower).upperLimitDate;
@@ -120,6 +122,11 @@ export class MyComponent {
    * @function emit_dates_when_changes_happen_days
    */
   dayChangedHandler(calendarEntry: CalendarEntry): void {
+    const upperDateOut = this._upperLimit;
+    const lowerDateOut = this._lowerLimit;
+    const incomingDate = calendarEntry.year + '-' + calendarEntry.month + '-' + calendarEntry.day;
+    const res = compareDates(upperDateOut, incomingDate);
+    const res2 = compareDates(lowerDateOut, incomingDate);
     this.dayChanged.emit(calendarEntry);
   }
   /**
