@@ -333,7 +333,7 @@ export class MyComponent {
   renderCalendarWheel() {
     return (
       <div>
-        <idk-2 selectedMonth="June" stuff={{ upper: this._upperLimitMonth, lower: this._lowerLimitMonth }} />
+        <idk-2 selectedMonth="June" limits={{ upper: this._upperLimitMonth, lower: this._lowerLimitMonth }} />
       </div>
     );
   }

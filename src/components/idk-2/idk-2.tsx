@@ -6,23 +6,28 @@ import { Component, h, Host, Listen, Prop, Event, EventEmitter } from '@stencil/
 })
 export class Idk2 {
   @Prop() selectedMonth;
-  @Prop() stuff: any;
-  @Event() eveIdk: EventEmitter<any>;
-  private _IDK = 0;
+  @Prop() limits: any;
+  @Event() selectedMonthEvent: EventEmitter<any>;
+  private _monthIndex = 0;
   @Listen('selectedDate')
   df(e) {
     this.selectedMonth = e.detail.month;
-    this._IDK = e.detail.monthIndex;
+    this._monthIndex = e.detail.monthIndex;
+  }
+  renderHeader() {
+    return (
+      <header onClick={() => this.selectedMonthEvent.emit({ clicked: true, selectedMonth: this.selectedMonth, indexOfMonth: this._monthIndex })}>
+        <div style={{ cursor: 'pointer' }}>{this.selectedMonth}</div>
+      </header>
+    );
   }
   render() {
     return (
       <Host>
-        <div class="calendar material">
-          <header onClick={() => this.eveIdk.emit({ clicked: true, selectedMonth: this.selectedMonth, indexOfMonth: this._IDK })}>
-            <div style={{ cursor: 'pointer' }}>{this.selectedMonth}</div>
-          </header>
+        <div class="calendar">
+          {this.renderHeader()}
           <div class="dropdown-month-year">
-            <idk-22 limits={this.stuff} />
+            <idk-22 limits={this.limits} />
           </div>
         </div>
       </Host>
