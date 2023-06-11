@@ -97,6 +97,10 @@ export class MyComponent {
     this._fillStartCount = calendar.getFillStartCount();
     this._fillEndCount = calendar.daysInCalendar - calendar.getFillEndCount();
   }
+  /**
+   *
+   * @function validate_date
+   */
   getValidDate(): CalendarEntry {
     if (this.date?.month > this._upperLimitMonth) {
       return;
@@ -110,9 +114,24 @@ export class MyComponent {
     }
     return date;
   }
+  /**
+   *
+   * @function emit_dates_when_changes_happen_days
+   */
   dayChangedHandler(calendarEntry: CalendarEntry): void {
     this.dayChanged.emit(calendarEntry);
   }
+  /**
+   *
+   * @function emit_dates_when_changes_happen_month
+   */
+  monthChangedHandler(calendarEntry: CalendarEntry): void {
+    this.monthChanged.emit(calendarEntry);
+  }
+  /**
+   *
+   * @function calls_emitters
+   */
   daySelectedHandler = (day): void => {
     this.selectedDate = {
       day,
@@ -121,9 +140,10 @@ export class MyComponent {
     };
     this.dayChangedHandler(this.selectedDate);
   };
-  monthChangedHandler(calendarEntry: CalendarEntry): void {
-    this.monthChanged.emit(calendarEntry);
-  }
+  /**
+   *
+   * @function prv_month
+   */
   switchToPreviousMonth = (): void => {
     this.date = this.getValidDate();
     if (this.date.month !== 1) {
@@ -160,6 +180,10 @@ export class MyComponent {
       return;
     }
   };
+  /**
+   *
+   * @function nxt_month
+   */
   switchToNextMonth = (): void => {
     this.date = this.getValidDate();
     if (this.date.month !== 12) {
@@ -193,10 +217,19 @@ export class MyComponent {
       return;
     }
   };
+  /**
+   * @listeners
+   *
+   */
   @Listen('eveIdk')
   lkk(e) {
     this.showTheWheel = !e.detail;
   }
+  /**
+   * @General_FUNCTIONS
+   *
+   */
+
   getDigitClassNames = (day: number, month: number, year: number, index: number): string => {
     let classNameDigit = [];
     if (day.toString().length === 1) {
@@ -264,41 +297,55 @@ export class MyComponent {
       </header>
     );
   }
-  renderAll = () => {
+  renderDayName() {
+    return this.dayNames.map(dayName => <span part="calender-part-day-name">{dayName}</span>);
+  }
+  renderMonthDays(date) {
+    return this.daysInMonth.map((day, index) => {
+      const classNameDigit = this.getDigitClassNames(day, date.month, date.year, index);
+      if (index < this._fillStartCount || index >= this._fillEndCount) {
+        return <span class="disabled">{this.showFillDays ? day : ''}</span>;
+      } else {
+        return (
+          <span onClick={() => this.daySelectedHandler(day)} part="calender-part-day-name-span">
+            <i part="calender-part-day-name-i" class={`${classNameDigit} ${this.isDisabled(day)}`}>
+              {day}
+            </i>
+          </span>
+        );
+      }
+    });
+  }
+  renderFullCalendar = () => {
     const date = this.getValidDate();
     return (
       <div class="calendar material" part="calender-container-part">
         {this.renderHeader(date)}
         <div class="day-names" part="calender-part-day-name-container">
-          {this.dayNames.map(dayName => (
-            <span part="calender-part-day-name">{dayName}</span>
-          ))}
+          {this.renderDayName()}
         </div>
         <div class="days-in-month" part="calender-part-day-name-month-container">
-          {this.daysInMonth.map((day, index) => {
-            const classNameDigit = this.getDigitClassNames(day, date.month, date.year, index);
-            if (index < this._fillStartCount || index >= this._fillEndCount) {
-              return <span class="disabled">{this.showFillDays ? day : ''}</span>;
-            } else {
-              return (
-                <span onClick={() => this.daySelectedHandler(day)} part="calender-part-day-name-span">
-                  <i part="calender-part-day-name-i" class={`${classNameDigit} ${this.isDisabled(day)}`}>
-                    {day}
-                  </i>
-                </span>
-              );
-            }
-          })}
+          {this.renderMonthDays(date)}
         </div>
       </div>
     );
   };
-  renderOnly() {
+  renderCalendarWheel() {
     return (
       <div>
         <idk-2 selectedMonth="June" stuff={{ upper: this._upperLimitMonth, lower: this._lowerLimitMonth }} />
       </div>
     );
+  }
+  renderModalContent() {
+    return (
+      <div class="all" part="calender-move-property-part" onMouseLeave={() => (this.openModal = false)}>
+        {this.openModal && <Fragment>{!this.showTheWheel ? this.renderFullCalendar() : this.renderCalendarWheel()}</Fragment>}
+      </div>
+    );
+  }
+  renderModal() {
+    return <nest-notification-modal-dialog open={this.openModal}>{this.renderModalContent()}</nest-notification-modal-dialog>;
   }
   render() {
     return (
@@ -306,11 +353,7 @@ export class MyComponent {
         {this._upperLimitDate}__==Upper&&Lower==__{this._lowerLimitDate}
         <br />
         <button onClick={() => (this.openModal = true)}>Click</button>
-        <nest-notification-modal-dialog open={this.openModal}>
-          <div class="all" part="calender-move-property-part" onMouseLeave={() => (this.openModal = false)}>
-            {this.openModal && <Fragment>{!this.showTheWheel ? this.renderAll() : this.renderOnly()}</Fragment>}
-          </div>
-        </nest-notification-modal-dialog>
+        {this.renderModal()}
       </Host>
     );
   }
