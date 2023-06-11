@@ -101,10 +101,10 @@ export function limitsDate(upper, lower) {
 }
 export function limitsYear(upper, lower) {
   return {
-    upperLimitMonth: addDays(new Date(), upper).getUTCFullYear(),
-    lowerLimitMonth: subDays(new Date(), lower).getUTCFullYear(),
+    upperLimitYear: addDays(new Date(), upper).getUTCFullYear(),
+    lowerLimitYear: subDays(new Date(), lower).getUTCFullYear(),
   };
 }
 export function compareDates(dateOne, dateTwo) {
-    return new Date(dateOne) >= new Date(dateTwo);
+  return new Date(dateOne) >= new Date(dateTwo);
 }

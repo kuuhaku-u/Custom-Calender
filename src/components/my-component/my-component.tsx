@@ -1,6 +1,6 @@
 import { Component, Prop, h, Watch, EventEmitter, State, Event, Host, Fragment, Listen } from '@stencil/core';
 import { CalendarEntry } from '../../utils/calendar-entry';
-import { Calendar, addDays, compareDates, limitsDate, limitsMonth, subDays } from '../../utils/calendar';
+import { Calendar, addDays, compareDates, limitsDate, limitsMonth, limitsYear, subDays } from '../../utils/calendar';
 import '@tec-registry/nest-notification-modal-dialog';
 @Component({
   tag: 'my-component',
@@ -52,6 +52,8 @@ export class MyComponent {
   private _ulDateArr: any[] = [];
   private _upperLimitMonth: any;
   private _lowerLimitMonth: any;
+  _upperLimitYear: number;
+  _lowerLimitYear: number;
   constructor() {
     this._today = Calendar.getToday();
   }
@@ -77,6 +79,8 @@ export class MyComponent {
     this._lowerLimitMonth = limitsMonth(this.limitUpper, this.limitLower).lowerLimitMonth;
     this._upperLimitDate = limitsDate(this.limitUpper, this.limitLower).upperLimitDate;
     this._lowerLimitDate = limitsDate(this.limitUpper, this.limitLower).lowerLimitDate;
+    this._upperLimitYear = limitsYear(this.limitUpper, this.limitLower).upperLimitYear;
+    this._lowerLimitYear = limitsYear(this.limitUpper, this.limitLower).lowerLimitYear;
     this.setCalendarDetails();
   }
   /**
@@ -131,13 +135,6 @@ export class MyComponent {
   }
   /**
    *
-   * @function emit_dates_when_changes_happen_month
-   */
-  monthChangedHandler(calendarEntry: CalendarEntry): void {
-    this.monthChanged.emit(calendarEntry);
-  }
-  /**
-   *
    * @function calls_emitters
    */
   daySelectedHandler = (day): void => {
@@ -163,7 +160,7 @@ export class MyComponent {
     if (typeof this.date !== 'undefined') {
       delete this.date.day;
     }
-    if (this.date.month === this._lowerLimitMonth && this.date.year === 2023) {
+    if (this.date.month === this._lowerLimitMonth) {
       const searchValue = 1;
       const indices = this.daysInMonth.reduce((acc, currentElement, currentIndex) => {
         if (currentElement === searchValue) {
@@ -179,7 +176,6 @@ export class MyComponent {
       this._ulDateArr = [];
     }
     this.setCalendarDetails();
-    this.monthChangedHandler(this.date);
     this.disableCrossForArrowForward = false;
     if (this._lowerLimitMonth >= this.date.month) {
       this.disableCrossForArrowBackward = true;
@@ -200,9 +196,10 @@ export class MyComponent {
       this.date.month = 1;
       this.date.year += 1;
     }
-    delete this.date.day;
+    // if (this.date.year !== this._upperLimitYear) {
+    // }
+    delete this.date?.day;
     this.setCalendarDetails();
-    this.monthChangedHandler(this.date);
     this.disableCrossForArrowBackward = false;
     if (this.date.month === this._lowerLimitMonth && this.date.year === 2023) {
       this.disableCrossForArrowBackward = true;
@@ -348,7 +345,7 @@ export class MyComponent {
       <header part="full-calender-part">
         <div part="calender-part-icons">
           <div onClick={() => (this.showTheWheel = true)} style={{ cursor: 'pointer' }} part="calender-part-month-name">
-            {this.monthNames[date.month - 1]}
+            {this.monthNames[date?.month - 1]}
           </div>
         </div>
         {this.renderArrows()}
