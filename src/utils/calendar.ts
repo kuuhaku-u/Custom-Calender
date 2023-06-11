@@ -79,11 +79,29 @@ export class Calendar {
     };
   }
 }
-export function  addDays(date: Date, days: number | string): Date {
+export function addDays(date: Date, days: number | string): Date {
   date.setDate(date.getDate() + parseInt(days as any));
   return date;
 }
 export function subDays(date: Date, days: number | string): Date {
   date.setDate(date.getDate() - parseInt(days as any));
   return date;
+}
+export function limitsMonth(upper, lower) {
+  return {
+    upperLimitMonth: addDays(new Date(), upper).getMonth() + 1,
+    lowerLimitMonth: subDays(new Date(), lower).getMonth() + 1,
+  };
+}
+export function limitsDate(upper, lower) {
+  return {
+    upperLimitDate: addDays(new Date(), upper).getDate(),
+    lowerLimitDate: subDays(new Date(), lower).getDate(),
+  };
+}
+export function limitsYear(upper, lower) {
+  return {
+    upperLimitMonth: addDays(new Date(), upper).getUTCFullYear(),
+    lowerLimitMonth: subDays(new Date(), lower).getUTCFullYear(),
+  };
 }

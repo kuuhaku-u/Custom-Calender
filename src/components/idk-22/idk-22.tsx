@@ -6,8 +6,8 @@ import { Component, EventEmitter, Host, State, Watch, h, Event, Prop } from '@st
 })
 export class Idk22 {
   @Prop() limits: any;
-  @Prop() currentMonth = new Date().getMonth();
-  @Prop() monthArray: any[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  @Prop() currentMonth = 'June';
+  @State() monthArray: any[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   @State() month: any[];
   @State() hour: string | number;
   @State() ampm: string;
@@ -66,26 +66,15 @@ export class Idk22 {
     const containerTop = elGBC.top;
     const elTop = entry.boundingClientRect.top;
     const len = arr.length;
-    let index;
-    const el = entry.target;
-    const n = el.innerHTML && !isNaN(el.innerHTML) ? Number(el.innerHTML) : el.innerHTML;
-    const temp = elToFindFrom;
-    index = temp.indexOf(n);
-    if (type === 'year') {
-      if (elTop > containerTop) {
-        this.dateSetter(el?.innerHTML === ' ' ? arr[1]?.innerHTML : '2024', type);
-      } else {
-        this.dateSetter(el?.innerHTML === ' ' ? arr[2]?.innerHTML : '2023', type);
-      }
-    } else {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      const n = el.innerHTML && !isNaN(el?.innerHTML) ? Number(el?.innerHTML) : el?.innerHTML;
+      const temp = elToFindFrom;
+      const index = temp.indexOf(n);
       if (Math.round(elTop) - 1 <= containerTop || Math.round(elTop) - 1 < 200) {
-        if (type === 'hour') {
-          this.dateSetter(el?.innerHTML === '' ? arr[1]?.innerHTML : arr[index + 1]?.innerHTML, type);
-        } else {
-          this.dateSetter(el?.innerHTML === '' ? arr[1]?.innerHTML : arr[index + 1]?.innerHTML, type);
-        }
+        this.dateSetter(el?.innerHTML === '' ? arr[1]?.innerHTML : arr[index + 1]?.innerHTML, type);
       } else {
-        const res = el.innerHTML == '' ? arr[len - 2].innerHTML : arr[index - 1]?.innerHTML;
+        const res = el?.innerHTML === ''  ? arr[len-2]?.innerHTML : arr[index - 1]?.innerHTML;
         this.dateSetter(res, type);
       }
     }
@@ -102,11 +91,10 @@ export class Idk22 {
    * @LifecycleMethod
    */
   connectedCallback() {
-    const emptyStr = ' ';
-    const arr = this.monthArrayReturn().slice(this.limits.lower - 1, this.limits.upper);
+    const emptyStr = '';
+    const arr = this.monthArrayReturn().slice(this.limits.lower-1 , this.limits.upper);
     arr.push(emptyStr);
     arr.unshift(emptyStr);
-    console.log(arr);
     this.month = arr;
   }
   componentDidLoad() {
@@ -163,13 +151,12 @@ export class Idk22 {
    * Fire every time component get attached to DOM to scroll to  active time
    */
   initialScrollToActiveValue() {
-    this.yearSelRef?.textContent === '2023'
+    this.yearSelRef?.textContent === new Date().getUTCFullYear().toString()
       ? null
       : this.yearSelRefScroll.scrollTo({
           top: 30 * 4,
           behavior: 'smooth',
         });
-    const monthIndex = this.month.indexOf(this.monthSelRef.textContent);
     this.monthScrollPortRef.querySelector('.scrollport').scrollTo({
       top: 33 * 1,
       behavior: 'smooth',

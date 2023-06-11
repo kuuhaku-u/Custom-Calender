@@ -12,12 +12,16 @@ export namespace Components {
         "stuff": any;
     }
     interface Idk22 {
-        "currentMonth": number;
+        "currentMonth": string;
         "limits": any;
-        "monthArray": any[];
     }
     interface MyComponent {
+        /**
+          * @props
+         */
         "dayNames": any[];
+        "limitLower": number;
+        "limitUpper": number;
         "monthNames": any[];
         "showFillDays": boolean;
     }
@@ -66,13 +70,17 @@ declare namespace LocalJSX {
         "stuff"?: any;
     }
     interface Idk22 {
-        "currentMonth"?: number;
+        "currentMonth"?: string;
         "limits"?: any;
-        "monthArray"?: any[];
         "onSelectedDate"?: (event: Idk22CustomEvent<{ monthIndex: Number; month: string | number; year: string }>) => void;
     }
     interface MyComponent {
+        /**
+          * @props
+         */
         "dayNames"?: any[];
+        "limitLower"?: number;
+        "limitUpper"?: number;
         "monthNames"?: any[];
         "onDayChanged"?: (event: MyComponentCustomEvent<CalendarEntry>) => void;
         "onMonthChanged"?: (event: MyComponentCustomEvent<CalendarEntry>) => void;
