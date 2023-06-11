@@ -8,8 +8,8 @@ import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { CalendarEntry } from "./utils/calendar-entry";
 export namespace Components {
     interface Idk2 {
+        "limits": any;
         "selectedMonth": any;
-        "stuff": any;
     }
     interface Idk22 {
         "currentMonth": string;
@@ -65,9 +65,9 @@ declare global {
 }
 declare namespace LocalJSX {
     interface Idk2 {
-        "onEveIdk"?: (event: Idk2CustomEvent<any>) => void;
+        "limits"?: any;
+        "onSelectedMonthEvent"?: (event: Idk2CustomEvent<any>) => void;
         "selectedMonth"?: any;
-        "stuff"?: any;
     }
     interface Idk22 {
         "currentMonth"?: string;
