@@ -6,9 +6,10 @@ import { Component, EventEmitter, Host, State, Watch, h, Event, Prop } from '@st
 })
 export class Idk22 {
   @Prop() limits: any;
+  @Prop() monthArray: any[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   @Prop() currentYear = new Date().getFullYear();
   @Prop() currentMonth = 'June';
-  @State() monthArray: any[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  // @State() : any[] =
   @State() month: any[];
   @State() hour: string | number;
   @State() ampm: string;

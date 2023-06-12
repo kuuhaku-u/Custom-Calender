@@ -1,5 +1,5 @@
 import { Component, h, Host, Listen, Prop, Event, EventEmitter } from '@stencil/core';
-import { calculateYears } from '../../utils/calendar';
+import { calculateYears, getMonthsBetweenDates } from '../../utils/calendar';
 @Component({
   tag: 'idk-2',
   styleUrl: 'idk-2.scss',
@@ -14,11 +14,14 @@ export class Idk2 {
   @Event() selectedMonthEvent: EventEmitter<any>;
   private _monthIndex = 0;
   private _allYearBetween;
+  private _allMonthsBetween;
   componentDidLoad() {
     this._allYearBetween = calculateYears(this.limits.lower, this.limits.upper);
     this._allYearBetween.push(this.upperLimitYear);
     this._allYearBetween.push(' ');
     this._allYearBetween.unshift(' ');
+    this._allMonthsBetween = getMonthsBetweenDates(this.limits.lower, this.limits.upper);
+    console.log(this._allMonthsBetween);
   }
   @Listen('selectedDate')
   df(e) {
