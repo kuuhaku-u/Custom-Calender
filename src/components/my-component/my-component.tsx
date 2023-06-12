@@ -14,9 +14,9 @@ export class MyComponent {
   @Prop() dayNames = [];
   @Prop() monthNames = [];
   @Prop() showFillDays = true;
-  @Prop() limitLower = 44;
+  @Prop() limitLower = 344;
   @Prop() hasMinMax = true;
-  @Prop() limitUpper = 64;
+  @Prop() limitUpper = 364;
   /**
    * @states
    */
@@ -106,7 +106,7 @@ export class MyComponent {
         const newArr = ulDateArr.concat(llDateArr);
         this._ulDateArr = newArr;
       }
-      if (this._currentMonth === this._upperLimitMonth && this._currentMonth !== this._lowerLimitMonth) {
+      if (this._currentMonth === this._upperLimitMonth && new Date().getFullYear() === this._upperLimitYear && this._currentMonth !== this._lowerLimitMonth) {
         this.disableCrossForArrowForward = true;
         const searchValue = 1;
         const indices = this.daysInMonth.reduce((acc, currentElement, currentIndex) => {
@@ -120,7 +120,7 @@ export class MyComponent {
         const indexOfLimit = this._ulDateArr.indexOf(this._upperLimitDate);
         this._ulDateArr = this._ulDateArr.splice(indexOfLimit + 1, this._ulDateArr.length);
       }
-      if (this._currentMonth === this._lowerLimitMonth && this._currentMonth !== this._upperLimitMonth) {
+      if (this._currentMonth === this._lowerLimitMonth && new Date().getFullYear() === this._lowerLimitYear && this._currentMonth !== this._upperLimitMonth) {
         this.disableCrossForArrowBackward = true;
         const searchValue = 1;
         const indices = this.daysInMonth.reduce((acc, currentElement, currentIndex) => {
@@ -548,7 +548,11 @@ export class MyComponent {
   render() {
     return (
       <Host>
-        {this._upperLimitDate}__==Upper&&Lower==__{this._lowerLimitDate}
+        Upper : {this._upperLimitDate} / {this._upperLimitMonth} / {this._upperLimitYear}
+        <br />
+        Lower : {this._lowerLimitDate} / {this._lowerLimitMonth} / {this._lowerLimitYear}
+        <br />
+        Date : {this.date?.day} / {this.date?.month} / {this.date?.year}
         <br />
         <button onClick={() => (this.openModal = true)}>Click</button>
         {this.renderModal()}
