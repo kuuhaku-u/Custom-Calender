@@ -15,7 +15,7 @@ export class MyComponent {
   @Prop() monthNames = [];
   @Prop() showFillDays = true;
   @Prop() limitLower = 8;
-  @Prop() limitUpper = 296;
+  @Prop() limitUpper = 96;
   /**
    * @states
    */
@@ -45,6 +45,7 @@ export class MyComponent {
   private _fillEndCount: number;
   readonly _today: CalendarEntry;
   private isUpperLieInSameYear: boolean;
+  private isLowerLieInSameYear: boolean;
   private _lowerLimitDate: any;
   private _upperLimit: any;
   private _lowerLimit: any;
@@ -138,6 +139,7 @@ export class MyComponent {
     const upperLimit = addDays(new Date(), this.limitUpper).getMonth() + 1;
     const lowerLimit = subDays(new Date(), this.limitLower).getMonth() + 1;
     this.isUpperLieInSameYear = this._upperLimitYear === new Date().getFullYear();
+    this.isLowerLieInSameYear = this._lowerLimitYear === new Date().getFullYear();
     if (this.isUpperLieInSameYear) {
       if (this.date?.month > upperLimit) {
         this.date.month = upperLimit;
@@ -163,6 +165,8 @@ export class MyComponent {
       if (this.date?.month > this._upperLimitMonth) {
         return;
       }
+    }
+    if (this.isLowerLieInSameYear) {
       if (this.date?.month < this._lowerLimitMonth) {
         return;
       }
