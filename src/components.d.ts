@@ -13,6 +13,10 @@ export namespace Components {
         "showFillDays": boolean;
     }
 }
+export interface MyComponentCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLMyComponentElement;
+}
 declare global {
     interface HTMLMyComponentElement extends Components.MyComponent, HTMLStencilElement {
     }
@@ -28,8 +32,8 @@ declare namespace LocalJSX {
     interface MyComponent {
         "dayNames"?: string[];
         "monthNames"?: string[];
-        "onDayChanged"?: (event: CustomEvent<CalendarEntry>) => void;
-        "onMonthChanged"?: (event: CustomEvent<CalendarEntry>) => void;
+        "onDayChanged"?: (event: MyComponentCustomEvent<CalendarEntry>) => void;
+        "onMonthChanged"?: (event: MyComponentCustomEvent<CalendarEntry>) => void;
         "showFillDays"?: boolean;
     }
     interface IntrinsicElements {
