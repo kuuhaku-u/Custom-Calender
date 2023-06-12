@@ -7,13 +7,6 @@ import '@tec-registry/nest-notification-modal-dialog';
   styleUrl: 'my-component.scss',
   shadow: true,
 })
-/**
- *
- *
- *@TODO
- *@one_FIX_UPPER_NOTlower
- *
- */
 export class MyComponent {
   /**
    * @props
@@ -21,9 +14,9 @@ export class MyComponent {
   @Prop() dayNames = [];
   @Prop() monthNames = [];
   @Prop() showFillDays = true;
-  @Prop() limitLower = 4;
+  @Prop() limitLower = 214;
   @Prop() hasMinMax = true;
-  @Prop() limitUpper = 4;
+  @Prop() limitUpper = 334;
   /**
    * @states
    */
@@ -177,11 +170,11 @@ export class MyComponent {
       }
       //upper && !lower
       if (this.isUpperLieInSameYear && !this.isLowerLieInSameYear) {
-        if (this.date?.month > upperLimit) {
+        if (this.date?.month > upperLimit && this.date.year === new Date().getFullYear()) {
           this.date.month = upperLimit;
           return;
         }
-        if (this.date?.month === lowerLimit && this.date.year === this._lowerLimitYear) {
+        if (this.date?.month <= this._lowerLimitMonth && this.date.year === this._lowerLimitYear) {
           this.date.month = lowerLimit;
           return;
         }
@@ -229,6 +222,7 @@ export class MyComponent {
           return date;
         }
         if (this.date?.month > this._upperLimitMonth) {
+          date = this.date;
           return date;
         } else {
           date = this.date;
@@ -237,7 +231,7 @@ export class MyComponent {
       }
       //For !upper && lower
       if (!this.isUpperLieInSameYear && this.isLowerLieInSameYear) {
-        if (this.date?.month === this._upperLimitMonth && this.date.year === this._upperLimitYear) {
+        if (this.date?.month < this._upperLimitMonth && this.date.year === this._upperLimitYear) {
           date = this.date;
           return date;
         }
@@ -263,7 +257,6 @@ export class MyComponent {
    */
   dayChangedHandler(calendarEntry: CalendarEntry): void {
     if (this.hasMinMax) {
-      this.dayChangedHandler(this.selectedDate);
       const upperDateOut = this._upperLimit;
       const lowerDateOut = this._lowerLimit;
       const incomingDate = calendarEntry.year + '-' + calendarEntry.month + '-' + calendarEntry.day;
@@ -582,7 +575,7 @@ export class MyComponent {
   renderCalendarWheel() {
     return (
       <div>
-        <idk-2 selectedMonth="June" limits={{ upper: this._upperLimitMonth, lower: this._lowerLimitMonth }} />
+        <idk-2 selectedMonth="June" limits={{ upper: this._upperLimit, lower: this._lowerLimit }} upperLimitYear={this._upperLimitYear} lowerLimitYear={this._lowerLimitYear} />
       </div>
     );
   }

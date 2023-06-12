@@ -8,12 +8,17 @@ import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { CalendarEntry } from "./utils/calendar-entry";
 export namespace Components {
     interface Idk2 {
+        "currentYear": number;
         "limits": any;
+        "lowerLimitYear": any;
         "selectedMonth": any;
+        "upperLimitYear": any;
     }
     interface Idk22 {
         "currentMonth": string;
+        "currentYear": number;
         "limits": any;
+        "year": any[];
     }
     interface MyComponent {
         /**
@@ -66,14 +71,19 @@ declare global {
 }
 declare namespace LocalJSX {
     interface Idk2 {
+        "currentYear"?: number;
         "limits"?: any;
+        "lowerLimitYear"?: any;
         "onSelectedMonthEvent"?: (event: Idk2CustomEvent<any>) => void;
         "selectedMonth"?: any;
+        "upperLimitYear"?: any;
     }
     interface Idk22 {
         "currentMonth"?: string;
+        "currentYear"?: number;
         "limits"?: any;
         "onSelectedDate"?: (event: Idk22CustomEvent<{ monthIndex: Number; month: string | number; year: string }>) => void;
+        "year"?: any[];
     }
     interface MyComponent {
         /**
