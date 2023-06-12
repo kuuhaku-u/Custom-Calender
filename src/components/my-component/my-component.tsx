@@ -7,7 +7,6 @@ import '@tec-registry/nest-notification-modal-dialog';
   styleUrl: 'my-component.scss',
   shadow: true,
 })
-
 export class MyComponent {
   /**
    * @props
@@ -258,7 +257,6 @@ export class MyComponent {
    */
   dayChangedHandler(calendarEntry: CalendarEntry): void {
     if (this.hasMinMax) {
-      this.dayChangedHandler(this.selectedDate);
       const upperDateOut = this._upperLimit;
       const lowerDateOut = this._lowerLimit;
       const incomingDate = calendarEntry.year + '-' + calendarEntry.month + '-' + calendarEntry.day;
