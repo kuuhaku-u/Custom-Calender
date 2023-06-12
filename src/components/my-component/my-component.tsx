@@ -14,8 +14,8 @@ export class MyComponent {
   @Prop() dayNames = [];
   @Prop() monthNames = [];
   @Prop() showFillDays = true;
-  @Prop() limitLower = 238;
-  @Prop() limitUpper = 296;
+  @Prop() limitLower = 44;
+  @Prop() limitUpper = 64;
   /**
    * @states
    */
@@ -87,8 +87,8 @@ export class MyComponent {
     this.isLowerLieInSameYear = this._lowerLimitYear === new Date().getFullYear();
     this.setCalendarDetails();
     if (this._currentMonth === this._upperLimitMonth && this._currentMonth === this._lowerLimitMonth) {
-      this.disableCrossForArrowForward = true;
-      this.disableCrossForArrowBackward = true;
+      this.disableCrossForArrowForward = true
+      this.disableCrossForArrowBackward = true
       const searchValue = 1;
       const indices = this.daysInMonth.reduce((acc, currentElement, currentIndex) => {
         if (currentElement === searchValue) {
@@ -101,7 +101,7 @@ export class MyComponent {
       const indexOfUpperLimit = this._ulDateArr.indexOf(this._upperLimitDate);
       const ulDateArr = this._ulDateArr.splice(indexOfUpperLimit + 1, this._ulDateArr.length);
       const llDateArr = this._ulDateArr.splice(0, indexOfLowerLimit);
-      const newArr = ulDateArr.concat(llDateArr);
+      const newArr = ulDateArr.concat(llDateArr)
       this._ulDateArr = newArr;
     }
     if (this._currentMonth === this._upperLimitMonth && this._currentMonth !== this._lowerLimitMonth) {
@@ -134,21 +134,36 @@ export class MyComponent {
     }
   }
   /**
-   *
-   * @function set_calendar_days
-   */
+ *
+ * @function set_calendar_days
+ */
   setCalendarDetails(): void {
     const upperLimit = addDays(new Date(), this.limitUpper).getMonth() + 1;
     const lowerLimit = subDays(new Date(), this.limitLower).getMonth() + 1;
-    if (this.date?.month >= upperLimit && this.date.year === this._upperLimitYear) {
-      this.date.month = upperLimit;
-      return;
+    if (!this.isLowerLieInSameYear) {
+      if (this.date?.month <= lowerLimit && this.date.year === this._lowerLimitYear) {
+        this.date.month = lowerLimit;
+        return;
+      }
     }
-    if (this.date?.month <= lowerLimit && this.date.year === this._lowerLimitYear) {
-      this.date.month = lowerLimit;
-      return;
+    if (!this.isUpperLieInSameYear) {
+      if (this.date?.month >= upperLimit && this.date.year === this._upperLimitYear) {
+        this.date.month = upperLimit;
+        return;
+      }
     }
-    // }
+    if (this.isUpperLieInSameYear) {
+      if (this.date?.month > upperLimit) {
+        this.date.month = upperLimit;
+        return;
+      }
+    }
+    if (this.isLowerLieInSameYear) {
+      if (this.date?.month < lowerLimit) {
+        this.date.month = lowerLimit;
+        return;
+      }
+    }
     this.date = this.getValidDate();
     const calendar = new Calendar(this.date.year, this.date.month);
     this.daysInMonth = calendar.getCalendarDays();
@@ -162,13 +177,17 @@ export class MyComponent {
   getValidDate(): CalendarEntry {
     if (this.isUpperLieInSameYear) {
       if (this.date?.month > this._upperLimitMonth) {
-        this.date.month = this._upperLimitMonth;
+        return;
+      }
+      if (this.date?.month < this._lowerLimitMonth) {
         return;
       }
     }
     if (this.isLowerLieInSameYear) {
+      if (this.date?.month > this._upperLimitMonth) {
+        return;
+      }
       if (this.date?.month < this._lowerLimitMonth) {
-        this.date.month = this._lowerLimitMonth;
         return;
       }
     }
@@ -292,7 +311,6 @@ export class MyComponent {
       this.date.year += 1;
     }
     delete this.date?.day;
-
     if (this.date.month < this._lowerLimitMonth && this.date.year <= this._lowerLimitYear) {
       this.date.month = this._lowerLimitMonth + 1;
       this.date.year = this._lowerLimitYear;
