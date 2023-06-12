@@ -19,6 +19,7 @@ export namespace Components {
         "currentYear": number;
         "limits": any;
         "monthArray": any[];
+        "upperLimitYear": number;
         "year": any[];
     }
     interface MyComponent {
@@ -85,6 +86,7 @@ declare namespace LocalJSX {
         "limits"?: any;
         "monthArray"?: any[];
         "onSelectedDate"?: (event: Idk22CustomEvent<{ monthIndex: Number; month: string | number; year: string }>) => void;
+        "upperLimitYear"?: number;
         "year"?: any[];
     }
     interface MyComponent {
