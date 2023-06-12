@@ -8,7 +8,7 @@ import { calculateYears, getMonthsBetweenDates } from '../../utils/calendar';
 export class Idk22 {
   @Prop() limits: any;
   @Prop() upperLimitYear = 2024;
-  @Prop() monthArray: any[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  @State() monthArray: any[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   @Prop() currentYear = new Date().getFullYear();
   @Prop() currentMonth = 'June';
   // @State() : any[] =
@@ -194,20 +194,22 @@ export class Idk22 {
     ));
   };
   forMonthWheel = (arr, selection) => {
+    console.log(selection.length);
     return arr.map((time, index) => (
       <div
-        aria-label={time}
-        style={{ opacity: time == selection ? '1' : '.3' }}
+        aria-label={time.split(' ')[0]}
+        style={{ opacity: time.split(' ')[0] == selection ? '1' : '.3' }}
         id={`hour_cell_${index}_id`}
-        part={`hour-cell-${time == this.hour ? 'selected-part' : 'not-selected-part'}`}
-        class={`cell  ${time == selection && 'selected'} ${time === ' ' && 'hide'} `}
+        part={`hour-cell-${time.split(' ')[0] == this.hour ? 'selected-part' : 'not-selected-part'}`}
+        class={`cell  ${time.split(' ')[0] == selection && 'selected'} ${time === ' ' && 'hide'} `}
         ref={el => {
-          if (time !== selection) {
+          if (time.split(' ')[0] !== selection) {
             return;
           }
           this.monthSelRef = el as HTMLElement;
         }}
       >
+        {console.log(time, time.split(' ')[0].length)}
         {time.split(' ')[0]}
       </div>
     ));
@@ -233,7 +235,7 @@ export class Idk22 {
         </div>
         <div class="ampm" id="ampm_id">
           <div class="scrollport" id="ampm_scrollport" ref={el => (this.yearSelRefScroll = el as HTMLElement)}>
-            {this.forYearWheel(this.year, 2023)}
+            {this.forYearWheel(this.year, '2023')}
           </div>
         </div>
       </div>
