@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Host, State, Watch, h, Event, Prop } from '@stencil/core';
+import { calculateYears, getMonthsBetweenDates } from '../../utils/calendar';
 @Component({
   tag: 'idk-22',
   styleUrl: 'idk-22.scss',
@@ -6,9 +7,11 @@ import { Component, EventEmitter, Host, State, Watch, h, Event, Prop } from '@st
 })
 export class Idk22 {
   @Prop() limits: any;
+  @Prop() upperLimitYear = 2024;
+  @Prop() monthArray: any[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   @Prop() currentYear = new Date().getFullYear();
   @Prop() currentMonth = 'June';
-  @State() monthArray: any[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  // @State() : any[] =
   @State() month: any[];
   @State() hour: string | number;
   @State() ampm: string;
@@ -169,6 +172,10 @@ export class Idk22 {
    *  @return HTML
    */
   forYearWheel = (arr, selection) => {
+    this.year = calculateYears(this.limits.lower, this.limits.upper);
+    this.year.push(this.upperLimitYear);
+    this.year.push(' ');
+    this.year.unshift(' ');
     return arr.map((time, index) => (
       <div
         id={`meridian_cell_${index}_id`}
@@ -201,7 +208,7 @@ export class Idk22 {
           this.monthSelRef = el as HTMLElement;
         }}
       >
-        {time}
+        {time.split(' ')[0]}
       </div>
     ));
   };
@@ -214,11 +221,14 @@ export class Idk22 {
     return <div class="highlight border-bottom border-top" id="highlight" part="highlight-active"></div>;
   }
   renderWheel() {
+    this.month = getMonthsBetweenDates(this.limits.lower, this.limits.upper).filter(e => e.includes(this.currentYear.toString()));
+    this.month.push(' ');
+    this.month.unshift(' ');
     return (
       <div class="wheels" id="wheel">
         <div class="hour" id="hour_id" ref={el => (this.monthScrollPortRef = el as HTMLElement)}>
           <div class="scrollport  hour" id="hour_scrollport">
-            {this.forMonthWheel(this.month, this.hour === undefined ? 'June' : this.hour)}
+            {this.forMonthWheel(this.month, 'June')}
           </div>
         </div>
         <div class="ampm" id="ampm_id">
