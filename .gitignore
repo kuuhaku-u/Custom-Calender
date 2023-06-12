@@ -24,3 +24,7 @@ $RECYCLE.BIN/
 Thumbs.db
 UserInterfaceState.xcuserstate
 .env
+.sh
+Docker
+docker.compose.dev
+gitlab.yml

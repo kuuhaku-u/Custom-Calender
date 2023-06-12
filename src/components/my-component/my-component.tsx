@@ -7,6 +7,13 @@ import '@tec-registry/nest-notification-modal-dialog';
   styleUrl: 'my-component.scss',
   shadow: true,
 })
+/**
+ *
+ *
+ *@TODO
+ *@one_FIX_UPPER_NOTlower
+ *
+ */
 export class MyComponent {
   /**
    * @props
@@ -14,9 +21,9 @@ export class MyComponent {
   @Prop() dayNames = [];
   @Prop() monthNames = [];
   @Prop() showFillDays = true;
-  @Prop() limitLower = 44;
+  @Prop() limitLower = 4;
   @Prop() hasMinMax = true;
-  @Prop() limitUpper = 64;
+  @Prop() limitUpper = 4;
   /**
    * @states
    */
@@ -106,7 +113,7 @@ export class MyComponent {
         const newArr = ulDateArr.concat(llDateArr);
         this._ulDateArr = newArr;
       }
-      if (this._currentMonth === this._upperLimitMonth && this._currentMonth !== this._lowerLimitMonth) {
+      if (this._currentMonth === this._upperLimitMonth && new Date().getFullYear() === this._upperLimitYear && this._currentMonth !== this._lowerLimitMonth) {
         this.disableCrossForArrowForward = true;
         const searchValue = 1;
         const indices = this.daysInMonth.reduce((acc, currentElement, currentIndex) => {
@@ -120,7 +127,7 @@ export class MyComponent {
         const indexOfLimit = this._ulDateArr.indexOf(this._upperLimitDate);
         this._ulDateArr = this._ulDateArr.splice(indexOfLimit + 1, this._ulDateArr.length);
       }
-      if (this._currentMonth === this._lowerLimitMonth && this._currentMonth !== this._upperLimitMonth) {
+      if (this._currentMonth === this._lowerLimitMonth && new Date().getFullYear() === this._lowerLimitYear && this._currentMonth !== this._upperLimitMonth) {
         this.disableCrossForArrowBackward = true;
         const searchValue = 1;
         const indices = this.daysInMonth.reduce((acc, currentElement, currentIndex) => {
@@ -146,26 +153,46 @@ export class MyComponent {
     if (this.hasMinMax) {
       const upperLimit = addDays(new Date(), this.limitUpper).getMonth() + 1;
       const lowerLimit = subDays(new Date(), this.limitLower).getMonth() + 1;
-      if (!this.isLowerLieInSameYear) {
+      //!upper && !lower
+      if (!this.isLowerLieInSameYear && !this.isUpperLieInSameYear) {
         if (this.date?.month <= lowerLimit && this.date.year === this._lowerLimitYear) {
           this.date.month = lowerLimit;
           return;
         }
-      }
-      if (!this.isUpperLieInSameYear) {
         if (this.date?.month >= upperLimit && this.date.year === this._upperLimitYear) {
           this.date.month = upperLimit;
           return;
         }
       }
-      if (this.isUpperLieInSameYear) {
+      //upper && lower
+      if (this.isUpperLieInSameYear && this.isLowerLieInSameYear) {
         if (this.date?.month > upperLimit) {
           this.date.month = upperLimit;
           return;
         }
-      }
-      if (this.isLowerLieInSameYear) {
         if (this.date?.month < lowerLimit) {
+          this.date.month = lowerLimit;
+          return;
+        }
+      }
+      //upper && !lower
+      if (this.isUpperLieInSameYear && !this.isLowerLieInSameYear) {
+        if (this.date?.month > upperLimit) {
+          this.date.month = upperLimit;
+          return;
+        }
+        if (this.date?.month === lowerLimit && this.date.year === this._lowerLimitYear) {
+          this.date.month = lowerLimit;
+          return;
+        }
+      }
+      //!upper && lower
+      if (!this.isUpperLieInSameYear && this.isLowerLieInSameYear) {
+        if (this.date?.month >= this._upperLimitMonth && this.date.year === this._upperLimitYear) {
+          this.date.month = this._upperLimitMonth;
+          return;
+        }
+        if (this.date?.month < lowerLimit && this.date.year === new Date().getFullYear()) {
           this.date.month = lowerLimit;
           return;
         }
@@ -182,25 +209,49 @@ export class MyComponent {
    * @function validate_date
    */
   getValidDate(): CalendarEntry {
+    let date;
     if (this.hasMinMax) {
-      if (this.isUpperLieInSameYear) {
+      //For upper && lower
+      if (this.isUpperLieInSameYear && this.isLowerLieInSameYear) {
         if (this.date?.month > this._upperLimitMonth) {
-          return;
+          date = this.date;
+          return date;
         }
         if (this.date?.month < this._lowerLimitMonth) {
-          return;
+          date = this.date;
+          return date;
         }
       }
-      if (this.isLowerLieInSameYear) {
+      //For upper && !lower
+      if (this.isUpperLieInSameYear && !this.isLowerLieInSameYear) {
+        if (this.date?.month > this._lowerLimitMonth && this.date.year === this._lowerLimitYear) {
+          date = this.date;
+          return date;
+        }
         if (this.date?.month > this._upperLimitMonth) {
-          return;
+          return date;
+        } else {
+          date = this.date;
+          return date;
+        }
+      }
+      //For !upper && lower
+      if (!this.isUpperLieInSameYear && this.isLowerLieInSameYear) {
+        if (this.date?.month === this._upperLimitMonth && this.date.year === this._upperLimitYear) {
+          date = this.date;
+          return date;
         }
         if (this.date?.month < this._lowerLimitMonth) {
-          return;
+          date = this.date;
+          return date;
+        } else {
+          date = this.date;
+          return date;
         }
       }
+      //For !upper && !lower
     }
-    let date = this.date;
+    date = this.date;
     if (!('month' in this.date && 'year' in this.date)) {
       date = this._today;
     }
@@ -548,7 +599,11 @@ export class MyComponent {
   render() {
     return (
       <Host>
-        {this._upperLimitDate}__==Upper&&Lower==__{this._lowerLimitDate}
+        Upper : {this._upperLimitDate} / {this._upperLimitMonth} / {this._upperLimitYear}
+        <br />
+        Lower : {this._lowerLimitDate} / {this._lowerLimitMonth} / {this._lowerLimitYear}
+        <br />
+        Date : {this.date?.day} / {this.date?.month} / {this.date?.year}
         <br />
         <button onClick={() => (this.openModal = true)}>Click</button>
         {this.renderModal()}
