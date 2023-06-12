@@ -123,3 +123,20 @@ export function calculateYears(startDate, endDate) {
   }
   return  yearArray;
 }
+export function getMonthsBetweenDates(startDate, endDate) {
+  var start = new Date(startDate);
+  var end = new Date(endDate);
+  var months = [];
+
+  while (start <= end) {
+    var month = start.toLocaleString('default', { month: 'long' });
+    var year = start.getFullYear();
+    var formattedMonth = month + ' ' + year;
+    months.push(formattedMonth);
+
+    start.setMonth(start.getMonth() + 1);
+  }
+
+  return months;
+}
+
