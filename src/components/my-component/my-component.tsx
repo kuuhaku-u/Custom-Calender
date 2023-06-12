@@ -226,7 +226,10 @@ export class MyComponent {
     if (typeof this.date !== 'undefined') {
       delete this.date.day;
     }
-    console.log(this.date, 'PRV');
+    if (this.date.month > this._upperLimitMonth && this.date.year >= this._upperLimitYear) {
+      this.date.month = this._upperLimitMonth - 1;
+      this.date.year = this._upperLimitYear;
+    }
     if (this.isLowerLieInSameYear) {
       if (this.date.month === this._lowerLimitMonth && this.date.year === this._lowerLimitYear) {
         const searchValue = 1;
@@ -289,7 +292,11 @@ export class MyComponent {
       this.date.year += 1;
     }
     delete this.date?.day;
-    console.log(this.date);
+
+    if (this.date.month < this._lowerLimitMonth && this.date.year <= this._lowerLimitYear) {
+      this.date.month = this._lowerLimitMonth + 1;
+      this.date.year = this._lowerLimitYear;
+    }
     if (this.isUpperLieInSameYear) {
       this.setCalendarDetails();
       this.disableCrossForArrowBackward = false;
@@ -444,7 +451,7 @@ export class MyComponent {
       <header part="full-calender-part">
         <div part="calender-part-icons">
           <div onClick={() => (this.showTheWheel = true)} style={{ cursor: 'pointer' }} part="calender-part-month-name">
-            {this.monthNames[date?.month - 1]}
+            {this.monthNames[date?.month - 1]} , {this.date.year}
           </div>
         </div>
         {this.renderArrows()}
