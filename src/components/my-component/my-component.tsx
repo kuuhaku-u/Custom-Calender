@@ -66,9 +66,6 @@ export class MyComponent {
    */
   @Watch('date')
   watchDate(date: CalendarEntry): void {
-    if (date === undefined) {
-      return;
-    }
     if ('month' in date && 'year' in date) {
       this.selectedDate = date;
     }
@@ -175,17 +172,17 @@ export class MyComponent {
         return;
       }
     }
-    if (this.date?.month === this._upperLimitMonth + 1 && this.date?.year === this._upperLimitYear) {
-      return;
-    }
+    // if (this.date.month === this._upperLimitMonth+1 && this.date.year === this._upperLimitYear) {
+    //   // if (this.date?.month < this._lowerLimitMonth) {
+    //   this.date.month = this._upperLimitMonth;
+    //   return;
+    //   // }
+    // }
     let date = this.date;
-    // console.log(date);
-    if(date === undefined)
     if (!('month' in this.date && 'year' in this.date)) {
       date = this._today;
-    } else {
-      return date;
     }
+    return date;
   }
   /**
    *
@@ -229,6 +226,7 @@ export class MyComponent {
     if (typeof this.date !== 'undefined') {
       delete this.date.day;
     }
+    console.log(this.date, 'PRV');
     if (this.isLowerLieInSameYear) {
       if (this.date.month === this._lowerLimitMonth && this.date.year === this._lowerLimitYear) {
         const searchValue = 1;
@@ -283,10 +281,7 @@ export class MyComponent {
    * @function nxt_month
    */
   switchToNextMonth = (): void => {
-      this.date = this.getValidDate();
-      if (this.date === undefined) {
-        return;
-      }
+    this.date = this.getValidDate();
     if (this.date.month !== 12) {
       this.date.month += 1;
     } else {
@@ -294,6 +289,7 @@ export class MyComponent {
       this.date.year += 1;
     }
     delete this.date?.day;
+    console.log(this.date);
     if (this.isUpperLieInSameYear) {
       this.setCalendarDetails();
       this.disableCrossForArrowBackward = false;
