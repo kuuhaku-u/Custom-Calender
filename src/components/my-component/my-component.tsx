@@ -1,6 +1,6 @@
 import { Component, Prop, h, Watch, EventEmitter, State, Event, Host, Fragment, Listen } from '@stencil/core';
 import { CalendarEntry } from '../../utils/calendar-entry';
-import { Calendar, addDays, limitsDate, limitsMonth, subDays } from '../../utils/calendar';
+import { Calendar, addDays, compareDates, limitsDate, limitsMonth, limitsYear, subDays } from '../../utils/calendar';
 import '@tec-registry/nest-notification-modal-dialog';
 @Component({
   tag: 'my-component',
@@ -45,10 +45,15 @@ export class MyComponent {
   private _fillEndCount: number;
   readonly _today: CalendarEntry;
   private _lowerLimitDate: any;
+  private _upperLimit: any;
+  private _lowerLimit: any;
+  private _currentMonth = new Date().getMonth() + 1;
   private _upperLimitDate: any;
   private _ulDateArr: any[] = [];
   private _upperLimitMonth: any;
   private _lowerLimitMonth: any;
+  _upperLimitYear: number;
+  _lowerLimitYear: number;
   constructor() {
     this._today = Calendar.getToday();
   }
@@ -68,12 +73,14 @@ export class MyComponent {
    * @function Call_the_SetCalendarDetails
    */
   componentWillLoad() {
-    this._upperLimitDate = addDays(new Date(), this.limitUpper).toISOString().split('T')[0];
-    this._lowerLimitDate = subDays(new Date(), this.limitLower).toISOString().split('T')[0];
+    this._upperLimit = addDays(new Date(), this.limitUpper);
+    this._lowerLimit = subDays(new Date(), this.limitLower);
     this._upperLimitMonth = limitsMonth(this.limitUpper, this.limitLower).upperLimitMonth;
     this._lowerLimitMonth = limitsMonth(this.limitUpper, this.limitLower).lowerLimitMonth;
     this._upperLimitDate = limitsDate(this.limitUpper, this.limitLower).upperLimitDate;
     this._lowerLimitDate = limitsDate(this.limitUpper, this.limitLower).lowerLimitDate;
+    this._upperLimitYear = limitsYear(this.limitUpper, this.limitLower).upperLimitYear;
+    this._lowerLimitYear = limitsYear(this.limitUpper, this.limitLower).lowerLimitYear;
     this.setCalendarDetails();
   }
   /**
@@ -119,14 +126,12 @@ export class MyComponent {
    * @function emit_dates_when_changes_happen_days
    */
   dayChangedHandler(calendarEntry: CalendarEntry): void {
+    const upperDateOut = this._upperLimit;
+    const lowerDateOut = this._lowerLimit;
+    const incomingDate = calendarEntry.year + '-' + calendarEntry.month + '-' + calendarEntry.day;
+    const res = compareDates(upperDateOut, incomingDate);
+    const res2 = compareDates(lowerDateOut, incomingDate);
     this.dayChanged.emit(calendarEntry);
-  }
-  /**
-   *
-   * @function emit_dates_when_changes_happen_month
-   */
-  monthChangedHandler(calendarEntry: CalendarEntry): void {
-    this.monthChanged.emit(calendarEntry);
   }
   /**
    *
@@ -155,7 +160,7 @@ export class MyComponent {
     if (typeof this.date !== 'undefined') {
       delete this.date.day;
     }
-    if (this.date.month === this._lowerLimitMonth && this.date.year === 2023) {
+    if (this.date.month === this._lowerLimitMonth) {
       const searchValue = 1;
       const indices = this.daysInMonth.reduce((acc, currentElement, currentIndex) => {
         if (currentElement === searchValue) {
@@ -171,7 +176,6 @@ export class MyComponent {
       this._ulDateArr = [];
     }
     this.setCalendarDetails();
-    this.monthChangedHandler(this.date);
     this.disableCrossForArrowForward = false;
     if (this._lowerLimitMonth >= this.date.month) {
       this.disableCrossForArrowBackward = true;
@@ -192,10 +196,27 @@ export class MyComponent {
       this.date.month = 1;
       this.date.year += 1;
     }
-    delete this.date.day;
+    // if (this.date.year !== this._upperLimitYear) {
+    // }
+    delete this.date?.day;
     this.setCalendarDetails();
-    this.monthChangedHandler(this.date);
     this.disableCrossForArrowBackward = false;
+    if (this.date.month === this._lowerLimitMonth && this.date.year === 2023) {
+      this.disableCrossForArrowBackward = true;
+      const searchValue = 1;
+      const indices = this.daysInMonth.reduce((acc, currentElement, currentIndex) => {
+        if (currentElement === searchValue) {
+          acc.push(currentIndex);
+        }
+        return acc;
+      }, []);
+      this._ulDateArr = [];
+      this._ulDateArr = this.daysInMonth.slice(indices[0], indices[1]);
+      const indexOfLimit = this._ulDateArr.indexOf(this._lowerLimitDate);
+      this._ulDateArr = this._ulDateArr.splice(0, indexOfLimit);
+    } else {
+      this._ulDateArr = [];
+    }
     if (this.date.month === this._upperLimitMonth) {
       const searchValue = 1;
       const indices = this.daysInMonth.reduce((acc, currentElement, currentIndex) => {
@@ -221,15 +242,49 @@ export class MyComponent {
    * @listeners
    *
    */
-  @Listen('eveIdk')
-  lkk(e) {
-    this.showTheWheel = !e.detail;
+  @Listen('selectedMonthEvent')
+  wheelListener(e) {
+    this.showTheWheel = false;
+    this.date.month = e.detail.indexOfMonth;
+    this.setCalendarDetails();
+    if (this._currentMonth >= e.detail.indexOfMonth) {
+      if (this.date.month === this._lowerLimitMonth && this.date.year === 2023) {
+        const searchValue = 1;
+        const indices = this.daysInMonth.reduce((acc, currentElement, currentIndex) => {
+          if (currentElement === searchValue) {
+            acc.push(currentIndex);
+          }
+          return acc;
+        }, []);
+        this._ulDateArr = [];
+        this._ulDateArr = this.daysInMonth.slice(indices[0], indices[1]);
+        const indexOfLimit = this._ulDateArr.indexOf(this._lowerLimitDate);
+        this._ulDateArr = this._ulDateArr.splice(0, indexOfLimit);
+      } else {
+        this._ulDateArr = [];
+      }
+    } else {
+      if (this.date.month === this._upperLimitMonth) {
+        this.disableCrossForArrowForward = true;
+        const searchValue = 1;
+        const indices = this.daysInMonth.reduce((acc, currentElement, currentIndex) => {
+          if (currentElement === searchValue) {
+            acc.push(currentIndex);
+          }
+          return acc;
+        }, []);
+        this._ulDateArr = this.daysInMonth.slice(indices[0], indices[1]);
+        const indexOfLimit = this._ulDateArr.indexOf(this._upperLimitDate);
+        this._ulDateArr = this._ulDateArr.splice(indexOfLimit + 1);
+      } else {
+        this._ulDateArr = [];
+      }
+    }
   }
   /**
    * @General_FUNCTIONS
    *
    */
-
   getDigitClassNames = (day: number, month: number, year: number, index: number): string => {
     let classNameDigit = [];
     if (day.toString().length === 1) {
@@ -290,7 +345,7 @@ export class MyComponent {
       <header part="full-calender-part">
         <div part="calender-part-icons">
           <div onClick={() => (this.showTheWheel = true)} style={{ cursor: 'pointer' }} part="calender-part-month-name">
-            {this.monthNames[date.month - 1]}
+            {this.monthNames[date?.month - 1]}
           </div>
         </div>
         {this.renderArrows()}
