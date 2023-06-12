@@ -20,6 +20,7 @@ export namespace Components {
           * @props
          */
         "dayNames": any[];
+        "hasMinMax": boolean;
         "limitLower": number;
         "limitUpper": number;
         "monthNames": any[];
@@ -79,6 +80,7 @@ declare namespace LocalJSX {
           * @props
          */
         "dayNames"?: any[];
+        "hasMinMax"?: boolean;
         "limitLower"?: number;
         "limitUpper"?: number;
         "monthNames"?: any[];
