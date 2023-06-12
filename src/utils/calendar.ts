@@ -105,6 +105,8 @@ export function limitsYear(upper, lower) {
     lowerLimitYear: subDays(new Date(), lower).getUTCFullYear(),
   };
 }
-export function compareDates(dateOne, dateTwo) {
-  return new Date(dateOne) >= new Date(dateTwo);
+export function compareDates(dateOne, dateTwo, dateThree) {
+  const upperLimit = addDays(new Date(dateOne), 1);
+  const lowerLimit = subDays(new Date(dateThree), 1);
+  return new Date(upperLimit) > new Date(dateTwo) && new Date(dateTwo) > new Date(lowerLimit);
 }

@@ -129,9 +129,12 @@ export class MyComponent {
     const upperDateOut = this._upperLimit;
     const lowerDateOut = this._lowerLimit;
     const incomingDate = calendarEntry.year + '-' + calendarEntry.month + '-' + calendarEntry.day;
-    const res = compareDates(upperDateOut, incomingDate);
-    const res2 = compareDates(lowerDateOut, incomingDate);
-    this.dayChanged.emit(calendarEntry);
+    const res = compareDates(upperDateOut, incomingDate, lowerDateOut);
+    if (res) {
+      this.dayChanged.emit(calendarEntry);
+    } else {
+      console.warn('NOT VALID DATE');
+    }
   }
   /**
    *
@@ -196,8 +199,6 @@ export class MyComponent {
       this.date.month = 1;
       this.date.year += 1;
     }
-    // if (this.date.year !== this._upperLimitYear) {
-    // }
     delete this.date?.day;
     this.setCalendarDetails();
     this.disableCrossForArrowBackward = false;
