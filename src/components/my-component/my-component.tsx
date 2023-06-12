@@ -7,13 +7,7 @@ import '@tec-registry/nest-notification-modal-dialog';
   styleUrl: 'my-component.scss',
   shadow: true,
 })
-/**
- *
- *
- *@TODO
- *@one_FIX_UPPER_NOTlower
- *
- */
+
 export class MyComponent {
   /**
    * @props
@@ -21,7 +15,7 @@ export class MyComponent {
   @Prop() dayNames = [];
   @Prop() monthNames = [];
   @Prop() showFillDays = true;
-  @Prop() limitLower = 4;
+  @Prop() limitLower = 214;
   @Prop() hasMinMax = true;
   @Prop() limitUpper = 4;
   /**
@@ -177,11 +171,11 @@ export class MyComponent {
       }
       //upper && !lower
       if (this.isUpperLieInSameYear && !this.isLowerLieInSameYear) {
-        if (this.date?.month > upperLimit) {
+        if (this.date?.month > upperLimit && this.date.year === new Date().getFullYear()) {
           this.date.month = upperLimit;
           return;
         }
-        if (this.date?.month === lowerLimit && this.date.year === this._lowerLimitYear) {
+        if (this.date?.month <= this._lowerLimitMonth && this.date.year === this._lowerLimitYear) {
           this.date.month = lowerLimit;
           return;
         }
@@ -229,6 +223,7 @@ export class MyComponent {
           return date;
         }
         if (this.date?.month > this._upperLimitMonth) {
+          date = this.date;
           return date;
         } else {
           date = this.date;
@@ -237,7 +232,7 @@ export class MyComponent {
       }
       //For !upper && lower
       if (!this.isUpperLieInSameYear && this.isLowerLieInSameYear) {
-        if (this.date?.month === this._upperLimitMonth && this.date.year === this._upperLimitYear) {
+        if (this.date?.month < this._upperLimitMonth && this.date.year === this._upperLimitYear) {
           date = this.date;
           return date;
         }
