@@ -110,3 +110,16 @@ export function compareDates(dateOne, dateTwo, dateThree) {
   const lowerLimit = subDays(new Date(dateThree), 1);
   return new Date(upperLimit) > new Date(dateTwo) && new Date(dateTwo) > new Date(lowerLimit);
 }
+export function calculateYears(startDate, endDate) {
+  const startYear = startDate.getFullYear();
+  const endYear = endDate.getFullYear();
+  let years = endYear - startYear;
+  const yearArray = [];
+  if (endDate <= new Date(endYear, startDate.getMonth(), startDate.getDate())) {
+    years--;
+  }
+  for (let i = 0; i <= years; i++) {
+    yearArray.push(startYear + i);
+  }
+  return  yearArray;
+}

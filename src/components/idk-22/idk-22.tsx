@@ -6,13 +6,14 @@ import { Component, EventEmitter, Host, State, Watch, h, Event, Prop } from '@st
 })
 export class Idk22 {
   @Prop() limits: any;
+  @Prop() currentYear = new Date().getFullYear();
   @Prop() currentMonth = 'June';
   @State() monthArray: any[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   @State() month: any[];
   @State() hour: string | number;
   @State() ampm: string;
   @Event() selectedDate: EventEmitter<{ monthIndex: Number; month: string | number; year: string }>;
-  year = [' ', new Date().getFullYear().toString(), ' '];
+  @Prop() year = [];
   childElementsMonth: unknown = [];
   childElementsYear: unknown = [];
   monthSelRef?: HTMLElement;
@@ -74,7 +75,7 @@ export class Idk22 {
       if (Math.round(elTop) - 1 <= containerTop || Math.round(elTop) - 1 < 200) {
         this.dateSetter(el?.innerHTML === '' ? arr[1]?.innerHTML : arr[index + 1]?.innerHTML, type);
       } else {
-        const res = el?.innerHTML === ''  ? arr[len-2]?.innerHTML : arr[index - 1]?.innerHTML;
+        const res = el?.innerHTML === '' ? arr[len - 2]?.innerHTML : arr[index - 1]?.innerHTML;
         this.dateSetter(res, type);
       }
     }
@@ -92,7 +93,7 @@ export class Idk22 {
    */
   connectedCallback() {
     const emptyStr = '';
-    const arr = this.monthArrayReturn().slice(this.limits.lower-1 , this.limits.upper);
+    const arr = this.monthArrayReturn().slice(4, 8);
     arr.push(emptyStr);
     arr.unshift(emptyStr);
     this.month = arr;
@@ -167,8 +168,8 @@ export class Idk22 {
   /**
    *  @return HTML
    */
-  forYearWheel = (arr, selection) =>
-    arr.map((time, index) => (
+  forYearWheel = (arr, selection) => {
+    return arr.map((time, index) => (
       <div
         id={`meridian_cell_${index}_id`}
         part={`year-cell-${time === this.ampm ? 'selected-part' : 'not-selected-part'}`}
@@ -184,6 +185,7 @@ export class Idk22 {
         {time}
       </div>
     ));
+  };
   forMonthWheel = (arr, selection) => {
     return arr.map((time, index) => (
       <div
@@ -221,7 +223,7 @@ export class Idk22 {
         </div>
         <div class="ampm" id="ampm_id">
           <div class="scrollport" id="ampm_scrollport" ref={el => (this.yearSelRefScroll = el as HTMLElement)}>
-            {this.forYearWheel(this.year, this.ampm)}
+            {this.forYearWheel(this.year, 2023)}
           </div>
         </div>
       </div>

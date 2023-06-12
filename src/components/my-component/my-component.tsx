@@ -16,7 +16,7 @@ export class MyComponent {
   @Prop() showFillDays = true;
   @Prop() limitLower = 214;
   @Prop() hasMinMax = true;
-  @Prop() limitUpper = 4;
+  @Prop() limitUpper = 334;
   /**
    * @states
    */
@@ -575,7 +575,7 @@ export class MyComponent {
   renderCalendarWheel() {
     return (
       <div>
-        <idk-2 selectedMonth="June" limits={{ upper: this._upperLimitMonth, lower: this._lowerLimitMonth }} />
+        <idk-2 selectedMonth="June" limits={{ upper: this._upperLimit, lower: this._lowerLimit }} upperLimitYear={this._upperLimitYear} lowerLimitYear={this._lowerLimitYear} />
       </div>
     );
   }
