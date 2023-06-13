@@ -102,7 +102,7 @@ declare namespace LocalJSX {
     }
     interface MonthWheel {
         "month"?: any[];
-        "onSelectedDate"?: (event: MonthWheelCustomEvent<{ monthIndex: Number; month: string | number; year: string }>) => void;
+        "onSelectedDate"?: (event: MonthWheelCustomEvent<{ monthIndex: number; month: string | number; year: string }>) => void;
     }
     interface MyComponent {
         /**
