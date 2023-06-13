@@ -8,15 +8,15 @@ import { calculateYears, getMonthsBetweenDates } from '../../utils/calendar';
 export class Idk22 {
   @Prop() limits: any;
   @Prop() upperLimitYear = 2024;
-  @Prop() monthArray: any[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  @State() monthArray: any[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   @Prop() currentYear = new Date().getFullYear();
   @Prop() currentMonth = 'June';
   // @State() : any[] =
   @State() month: any[];
-  @State() hour: string | number;
+  @State() hour: string | number = 'June';
   @State() ampm: string;
   @Event() selectedDate: EventEmitter<{ monthIndex: Number; month: string | number; year: string }>;
-  @Prop() year = [];
+  private year = [];
   childElementsMonth: unknown = [];
   childElementsYear: unknown = [];
   monthSelRef?: HTMLElement;
@@ -26,9 +26,6 @@ export class Idk22 {
   /**
    *@HelperFunction
    */
-  monthArrayReturn(): any[] {
-    return this.monthArray;
-  }
   setClassSelected(arr, val) {
     try {
       if (arr.length === 0 || val === undefined) {
@@ -76,9 +73,9 @@ export class Idk22 {
       const temp = elToFindFrom;
       const index = temp.indexOf(n);
       if (Math.round(elTop) - 1 <= containerTop || Math.round(elTop) - 1 < 200) {
-        this.dateSetter(el?.innerHTML === '' ? arr[1]?.innerHTML : arr[index + 1]?.innerHTML, type);
+        this.dateSetter(el?.innerHTML === ' ' ? arr[1]?.innerHTML : arr[index + 1]?.innerHTML, type);
       } else {
-        const res = el?.innerHTML === '' ? arr[len - 2]?.innerHTML : arr[index - 1]?.innerHTML;
+        const res = el?.innerHTML === ' ' ? arr[len - 2]?.innerHTML : arr[index - 1]?.innerHTML;
         this.dateSetter(res, type);
       }
     }
@@ -94,13 +91,13 @@ export class Idk22 {
   /**
    * @LifecycleMethod
    */
-  connectedCallback() {
-    const emptyStr = '';
-    const arr = this.monthArrayReturn().slice(4, 8);
-    arr.push(emptyStr);
-    arr.unshift(emptyStr);
-    this.month = arr;
-  }
+  // connectedCallback() {
+  //   const emptyStr = '';
+  //   const arr = this.monthArrayReturn().slice(4, 8);
+  //   arr.push(emptyStr);
+  //   arr.unshift(emptyStr);
+  //   this.month = arr;
+  // }
   componentDidLoad() {
     this.initialScrollToActiveValue();
     const options = {
@@ -131,7 +128,7 @@ export class Idk22 {
     hourObserve.forEach(el => {
       hourObserver.observe(el);
     });
-    const ampmObserver = this.yearSelRefScroll.querySelectorAll('.cell');
+    const ampmObserver = this.yearSelRefScroll.querySelector('.scrollport').querySelectorAll('.cell');
     const meridianElements = this.childElementsYear;
     const ampmObserve = new IntersectionObserver(callbackMeridianIO, options.ampm);
     ampmObserver.forEach(el => {
@@ -155,14 +152,13 @@ export class Idk22 {
    * Fire every time component get attached to DOM to scroll to  active time
    */
   initialScrollToActiveValue() {
-    this.yearSelRef?.textContent === new Date().getUTCFullYear().toString()
-      ? null
-      : this.yearSelRefScroll.scrollTo({
-          top: 30 * 4,
-          behavior: 'smooth',
-        });
+    const yearIndex = this.year.indexOf(new Date().getUTCFullYear()) - 1;
+    this.yearSelRefScroll.querySelector('.scrollport').scrollTo({
+      top: 33 * yearIndex,
+      behavior: 'smooth',
+    });
     this.monthScrollPortRef.querySelector('.scrollport').scrollTo({
-      top: 33 * 1,
+      top: 33 * new Date().getMonth(),
       behavior: 'smooth',
     });
     this.forMonth();
@@ -172,16 +168,13 @@ export class Idk22 {
    *  @return HTML
    */
   forYearWheel = (arr, selection) => {
-    this.year = calculateYears(this.limits.lower, this.limits.upper);
-    this.year.push(this.upperLimitYear);
-    this.year.push(' ');
-    this.year.unshift(' ');
     return arr.map((time, index) => (
       <div
-        id={`meridian_cell_${index}_id`}
+        id={`year_cell_${index}_id`}
+        style={{ opacity: time == selection ? '1' : '.3' }}
         part={`year-cell-${time === this.ampm ? 'selected-part' : 'not-selected-part'}`}
         aria-label={time}
-        class={`cell  ${time === selection && 'selected'}  ${time === 'X1' || time === 'X2' ? 'hide' : ''} `}
+        class={`cell  ${time === selection && 'selected'} `}
         ref={el => {
           if (time !== selection) {
             return;
@@ -208,7 +201,7 @@ export class Idk22 {
           this.monthSelRef = el as HTMLElement;
         }}
       >
-        {time.split(' ')[0]}
+        {time}
       </div>
     ));
   };
@@ -221,19 +214,25 @@ export class Idk22 {
     return <div class="highlight border-bottom border-top" id="highlight" part="highlight-active"></div>;
   }
   renderWheel() {
-    this.month = getMonthsBetweenDates(this.limits.lower, this.limits.upper).filter(e => e.includes(this.currentYear.toString()));
+    this.month = getMonthsBetweenDates(this.limits.lower, this.limits.upper)
+      .filter(e => e.includes(this.currentYear))
+      .map(e => e.split(' ')[0].toString());
     this.month.push(' ');
     this.month.unshift(' ');
+    this.year = calculateYears(this.limits.lower, this.limits.upper);
+    this.year.push(this.upperLimitYear);
+    this.year.push(' ');
+    this.year.unshift(' ');
     return (
       <div class="wheels" id="wheel">
         <div class="hour" id="hour_id" ref={el => (this.monthScrollPortRef = el as HTMLElement)}>
           <div class="scrollport  hour" id="hour_scrollport">
-            {this.forMonthWheel(this.month, 'June')}
+            {this.forMonthWheel(this.month, this.hour)}
           </div>
         </div>
-        <div class="ampm" id="ampm_id">
-          <div class="scrollport" id="ampm_scrollport" ref={el => (this.yearSelRefScroll = el as HTMLElement)}>
-            {this.forYearWheel(this.year, 2023)}
+        <div class="ampm" id="ampm_id" ref={el => (this.yearSelRefScroll = el as HTMLElement)}>
+          <div class="scrollport" id="ampm_scrollport">
+            {this.forYearWheel(this.year, '2023')}
           </div>
         </div>
       </div>

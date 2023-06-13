@@ -582,7 +582,7 @@ export class MyComponent {
   renderModalContent() {
     return (
       <div class="all" part="calender-move-property-part" onMouseLeave={() => (this.openModal = false)}>
-        {this.openModal && <Fragment>{!this.showTheWheel ? this.renderFullCalendar() : this.renderCalendarWheel()}</Fragment>}
+        {this.openModal && <Fragment>{false ? this.renderFullCalendar() : this.renderCalendarWheel()}</Fragment>}
       </div>
     );
   }
