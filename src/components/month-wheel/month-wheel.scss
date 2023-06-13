@@ -1,0 +1,92 @@
+@import '@tec-registry/daisy/src/index';
+.dropdown-month-year {
+  display: flex;
+  justify-content: space-evenly;
+}
+#month {
+  max-height: 68px;
+  background: aquamarine;
+  overflow: scroll;
+  display: flex;
+  flex-direction: column;
+}
+.i {
+  height: 50%;
+}
+.scrollport {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  height: 3.8rem;
+  overflow: auto;
+  scroll-snap-type: y mandatory;
+}
+.cell {
+  padding: 0px;
+  align-items: center;
+  height: 49%;
+  margin: 0px;
+}
+.scrollport::-webkit-scrollbar {
+  width: 0em;
+  background-color: #f5f5f5;
+}
+.gh {
+  opacity: 0.4;
+  color: #902dc6;
+}
+.arrow-disable {
+  opacity: 0.4;
+}
+.container {
+  display: flex;
+  width: 10rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wheels {
+  z-index: 10;
+  display: flex;
+}
+.scrollport {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  width: 4rem;
+  height: 6rem;
+  overflow: auto;
+  scroll-snap-type: y mandatory;
+}
+.cell {
+  scroll-snap-align: center;
+  flex-grow: 1;
+  flex-shrink: 0;
+  flex-basis: 33.3%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #000;
+  font-size: 1.4rem;
+  height: 33%
+}
+.scrollport::-webkit-scrollbar {
+  width: 0em;
+  background-color: #F5F5F5;
+}
+.scrollable {
+  height: 100px;
+  overflow-y: scroll;
+}
+.highlight {
+  z-index: 9;
+  position: absolute;
+  width: 100%;
+  height: 32px;
+}
+.hide {
+  visibility: hidden;
+}
+.hour {
+  width: 136px;
+}

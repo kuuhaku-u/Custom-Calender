@@ -6,7 +6,7 @@ import { Component, h, Host, Listen, Prop, Event, EventEmitter, State } from '@s
 })
 export class Idk2 {
   @Prop() selectedMonth;
-  @Prop() upperLimitYear;
+  @Prop() upperYear;
   @Prop() lowerLimitYear;
   @Prop() currentYear = new Date().getFullYear();
   @Prop() limits: any;
@@ -19,7 +19,6 @@ export class Idk2 {
     this._monthIndex = e.detail.monthIndex + 1;
   }
   componentDidLoad() {
-    console.log('Component has been rendered');
   }
   renderHeader() {
     return (
@@ -34,7 +33,7 @@ export class Idk2 {
         <div class="calendar">
           {this.renderHeader()}
           <div class="dropdown-month-year">
-            <idk-22 limits={this.limits} currentYear={this.currentYear} currentMonth={new Date().toLocaleString('default', { month: 'long' })} />
+            <idk-22 upperLimitYear={this.upperYear}limits={this.limits} currentYear={this.currentYear} currentMonth={new Date().toLocaleString('default', { month: 'long' })} />
           </div>
         </div>
       </Host>

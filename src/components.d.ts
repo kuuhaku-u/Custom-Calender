@@ -12,13 +12,16 @@ export namespace Components {
         "limits": any;
         "lowerLimitYear": any;
         "selectedMonth": any;
-        "upperLimitYear": any;
+        "upperYear": any;
     }
     interface Idk22 {
         "currentMonth": string;
         "currentYear": number;
         "limits": any;
         "upperLimitYear": number;
+    }
+    interface MonthWheel {
+        "month": any[];
     }
     interface MyComponent {
         /**
@@ -40,6 +43,10 @@ export interface Idk22CustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLIdk22Element;
 }
+export interface MonthWheelCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLMonthWheelElement;
+}
 export interface MyComponentCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLMyComponentElement;
@@ -57,6 +64,12 @@ declare global {
         prototype: HTMLIdk22Element;
         new (): HTMLIdk22Element;
     };
+    interface HTMLMonthWheelElement extends Components.MonthWheel, HTMLStencilElement {
+    }
+    var HTMLMonthWheelElement: {
+        prototype: HTMLMonthWheelElement;
+        new (): HTMLMonthWheelElement;
+    };
     interface HTMLMyComponentElement extends Components.MyComponent, HTMLStencilElement {
     }
     var HTMLMyComponentElement: {
@@ -66,6 +79,7 @@ declare global {
     interface HTMLElementTagNameMap {
         "idk-2": HTMLIdk2Element;
         "idk-22": HTMLIdk22Element;
+        "month-wheel": HTMLMonthWheelElement;
         "my-component": HTMLMyComponentElement;
     }
 }
@@ -76,14 +90,19 @@ declare namespace LocalJSX {
         "lowerLimitYear"?: any;
         "onSelectedMonthEvent"?: (event: Idk2CustomEvent<any>) => void;
         "selectedMonth"?: any;
-        "upperLimitYear"?: any;
+        "upperYear"?: any;
     }
     interface Idk22 {
         "currentMonth"?: string;
         "currentYear"?: number;
         "limits"?: any;
         "onSelectedDate"?: (event: Idk22CustomEvent<{ monthIndex: Number; month: string | number; year: string }>) => void;
+        "onSelectedYEar"?: (event: Idk22CustomEvent<any>) => void;
         "upperLimitYear"?: number;
+    }
+    interface MonthWheel {
+        "month"?: any[];
+        "onSelectedDate"?: (event: MonthWheelCustomEvent<{ monthIndex: Number; month: string | number; year: string }>) => void;
     }
     interface MyComponent {
         /**
@@ -101,6 +120,7 @@ declare namespace LocalJSX {
     interface IntrinsicElements {
         "idk-2": Idk2;
         "idk-22": Idk22;
+        "month-wheel": MonthWheel;
         "my-component": MyComponent;
     }
 }
@@ -110,6 +130,7 @@ declare module "@stencil/core" {
         interface IntrinsicElements {
             "idk-2": LocalJSX.Idk2 & JSXBase.HTMLAttributes<HTMLIdk2Element>;
             "idk-22": LocalJSX.Idk22 & JSXBase.HTMLAttributes<HTMLIdk22Element>;
+            "month-wheel": LocalJSX.MonthWheel & JSXBase.HTMLAttributes<HTMLMonthWheelElement>;
             "my-component": LocalJSX.MyComponent & JSXBase.HTMLAttributes<HTMLMyComponentElement>;
         }
     }

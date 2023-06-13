@@ -14,9 +14,9 @@ export class MyComponent {
   @Prop() dayNames = [];
   @Prop() monthNames = [];
   @Prop() showFillDays = true;
-  @Prop() limitLower = 214;
+  @Prop() limitLower = 224;
   @Prop() hasMinMax = true;
-  @Prop() limitUpper = 334;
+  @Prop() limitUpper = 261;
   /**
    * @states
    */
@@ -575,19 +575,30 @@ export class MyComponent {
   renderCalendarWheel() {
     return (
       <div>
-        <idk-2 selectedMonth="June" limits={{ upper: this._upperLimit, lower: this._lowerLimit }} upperLimitYear={this._upperLimitYear} lowerLimitYear={this._lowerLimitYear} />
+        <idk-2 selectedMonth="June" limits={{ upper: this._upperLimit, lower: this._lowerLimit }} upperYear={this._upperLimitYear} lowerLimitYear={this._lowerLimitYear} />
       </div>
     );
   }
   renderModalContent() {
     return (
       <div class="all" part="calender-move-property-part" onMouseLeave={() => (this.openModal = false)}>
-        {this.openModal && <Fragment>{false ? this.renderFullCalendar() : this.renderCalendarWheel()}</Fragment>}
+        {this.openModal && <Fragment>{!this.showTheWheel ? this.renderFullCalendar() : this.renderCalendarWheel()}</Fragment>}
       </div>
     );
   }
+  private _refModal;
   renderModal() {
-    return <nest-notification-modal-dialog open={this.openModal}>{this.renderModalContent()}</nest-notification-modal-dialog>;
+    return (
+      <nest-notification-modal-dialog ref={e => (this._refModal = e)} onFocus={() => console.log('L')} open={this.openModal}>
+        {this.renderModalContent()}
+      </nest-notification-modal-dialog>
+    );
+  }
+  focusFun() {
+    this._refModal;
+    // const activeTimeFocus = this._refModal.shadowRoot.querySelector('nest-notification-modal-dialog > div > div > div.days-in-month > span:nth-child(16) > i');
+    // console.log(activeTimeFocus.innerHTML);
+    this.openModal = true;
   }
   render() {
     return (
@@ -598,7 +609,7 @@ export class MyComponent {
         <br />
         Date : {this.date?.day} / {this.date?.month} / {this.date?.year}
         <br />
-        <button onClick={() => (this.openModal = true)}>Click</button>
+        <button onClick={() => this.focusFun()}>Click</button>
         {this.renderModal()}
       </Host>
     );
