@@ -126,12 +126,22 @@ export class Idk22 {
   }
   /**
    * @Watchers
-   */
+   */8
   someFun() {
     if (parseInt(this.ampm) > new Date().getFullYear()) {
-      this.nxtYear = this.setAllArray();
+      this.month = this.setAllArray();
+      const desiredLength = 13;
+      while (this.month.length < desiredLength) {
+        this.month.push('');
+      }
+      this.month.push(' ');
     } else if (parseInt(this.ampm) < new Date().getFullYear()) {
-      this.prvYear = this.setAllArray();
+      this.month = this.setAllArray();
+      const desiredLength = 13;
+      while (this.month.length < desiredLength) {
+        this.month.unshift('');
+      }
+      this.month.unshift(' ');
     } else {
       this.month = this.setAllArray();
       return this.month;
@@ -139,19 +149,11 @@ export class Idk22 {
   }
   @Watch('ampm')
   emitAMPM() {
-    // this.someFun();
+    this.someFun();
     this.setClassSelected(this.childElementsYear, this.ampm);
     this.selectedYEar.emit({ year: this.ampm });
     this.selectedDate.emit({ monthIndex: this.monthArray.indexOf(this.hour), month: this.hour, year: this.ampm });
   }
-  // @Watch('ampm')
-  // emitSelYear() {
-  //   // this.someFun();
-  //   // this.setClassSelected(this.childElementsYear, this.ampm);
-  // }
-  /**
-   * Fire every time component get attached to DOM to scroll to  active time
-   */
   initialScrollToActiveValue() {
     const yearIndex = this.year.indexOf(new Date().getUTCFullYear()) - 1;
     this.yearSelRefScroll.querySelector('.scrollport').scrollTo({
@@ -160,9 +162,6 @@ export class Idk22 {
     });
     this.forYEar();
   }
-  /**
-   *  @return HTML
-   */
   forYearWheel = (arr, selection) => {
     return arr.map((time, index) => (
       <div
@@ -193,7 +192,7 @@ export class Idk22 {
   renderWheel() {
     return (
       <div class="wheels" id="wheel">
-        <month-wheel month={this.currentYearCheck === new Date().getFullYear() ? this.month : []} />
+        <month-wheel month={this.month} />
         <div class="ampm" id="ampm_id" ref={el => (this.yearSelRefScroll = el as HTMLElement)}>
           <div class="scrollport" id="ampm_scrollport">
             {this.forYearWheel(this.year, this.ampm)}

@@ -127,16 +127,12 @@ export function getMonthsBetweenDates(startDate, endDate) {
   let start = new Date(startDate);
   let end = new Date(endDate);
   let months = [];
-
   while (start <= end) {
     let month = start.toLocaleString('default', { month: 'long' });
     let year = start.getFullYear();
     let formattedMonth = month + ' ' + year;
     months.push(formattedMonth);
-
     start.setMonth(start.getMonth() + 1);
   }
-
   return months;
 }
-

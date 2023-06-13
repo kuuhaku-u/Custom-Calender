@@ -12,7 +12,7 @@ export namespace Components {
         "limits": any;
         "lowerLimitYear": any;
         "selectedMonth": any;
-        "upperLimitYear": any;
+        "upperYear": any;
     }
     interface Idk22 {
         "currentMonth": string;
@@ -90,7 +90,7 @@ declare namespace LocalJSX {
         "lowerLimitYear"?: any;
         "onSelectedMonthEvent"?: (event: Idk2CustomEvent<any>) => void;
         "selectedMonth"?: any;
-        "upperLimitYear"?: any;
+        "upperYear"?: any;
     }
     interface Idk22 {
         "currentMonth"?: string;

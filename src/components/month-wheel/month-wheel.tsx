@@ -5,26 +5,34 @@ import { Component, EventEmitter, Host, Prop, State, h, Event, Watch, Listen } f
   shadow: true,
 })
 export class MonthWheel {
-  @Prop() month: any[] = [' ', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', ' '];
+  @Prop() month: any[];
+  //  = [' ', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', ' '];
+  private _monthArr: any[] = [' ', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', ' '];
   @State() hour: string | number = 'June';
-  @State() idkForNow = [' ', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', ' '];
   @State() ampm: any = new Date().getFullYear();
   @Event() selectedDate: EventEmitter<{ monthIndex: Number; month: string | number; year: string }>;
   @State() selYear: any;
-  @State() monthChild;
   childElementsMonth: unknown = [];
   monthSelRef?: HTMLElement;
   monthScrollPortRef?: HTMLElement;
   @Listen('selectedYEar', { target: 'document' })
   id(e) {
     this.selYear = e.detail.year;
+    if (this.selYear == ' ') {
+      return;
+    }
+    if (this.selYear < 2023) {
+      this.hour = 'December';
+      this.initialScrollToActiveValue();
+    }
+    if (this.selYear > 2024) {
+      this.hour = 'January';
+      this.initialScrollToActiveValue();
+    } else {
+      this.hour = 'Jube';
+      this.initialScrollToActiveValue();
+    }
   }
-  // @Watch('selYear')
-  // fs() {
-  //   console.log('f');
-  //   if
-  //   this.month = [' ', 'January', 'February', ' '];
-  // }
   /**
    *@HelperFunction
    */
@@ -125,7 +133,7 @@ export class MonthWheel {
    * Fire every time component get attached to DOM to scroll to  active time
    */
   initialScrollToActiveValue() {
-    const monthIndex = this.month.indexOf(this.hour) - 1;
+    const monthIndex = this._monthArr.indexOf(this.hour) - 1;
     this.monthScrollPortRef.querySelector('.scrollport').scrollTo({
       top: 33 * monthIndex,
       behavior: 'smooth',
