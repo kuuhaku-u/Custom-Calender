@@ -19,7 +19,6 @@ export class Idk2 {
     this._monthIndex = e.detail.monthIndex + 1;
   }
   componentDidLoad() {
-    console.log('Component has been rendered');
   }
   renderHeader() {
     return (

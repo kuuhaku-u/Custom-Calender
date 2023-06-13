@@ -124,14 +124,14 @@ export function calculateYears(startDate, endDate) {
   return  yearArray;
 }
 export function getMonthsBetweenDates(startDate, endDate) {
-  var start = new Date(startDate);
-  var end = new Date(endDate);
-  var months = [];
+  let start = new Date(startDate);
+  let end = new Date(endDate);
+  let months = [];
 
   while (start <= end) {
-    var month = start.toLocaleString('default', { month: 'long' });
-    var year = start.getFullYear();
-    var formattedMonth = month + ' ' + year;
+    let month = start.toLocaleString('default', { month: 'long' });
+    let year = start.getFullYear();
+    let formattedMonth = month + ' ' + year;
     months.push(formattedMonth);
 
     start.setMonth(start.getMonth() + 1);

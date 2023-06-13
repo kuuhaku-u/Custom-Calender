@@ -9,23 +9,30 @@ export class Idk22 {
   @Prop() limits: any;
   @Prop() upperLimitYear = 2024;
   @State() monthArray: any[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  @Prop() currentYear = new Date().getFullYear();
+  @Prop() currentYear = 2023;
   @Prop() currentMonth = 'June';
-  // @State() : any[] =
   @State() month: any[];
   @State() hour: string | number = 'June';
-  @State() ampm: string;
+  @State() ampm: any = new Date().getFullYear();
+  @State() prvYear: any[] = [];
+  @State() nxtYear: any[] = [];
   @Event() selectedDate: EventEmitter<{ monthIndex: Number; month: string | number; year: string }>;
   private year = [];
-  childElementsMonth: unknown = [];
   childElementsYear: unknown = [];
-  monthSelRef?: HTMLElement;
-  monthScrollPortRef?: HTMLElement;
   yearSelRef?: HTMLElement;
   yearSelRefScroll?: HTMLElement;
+  @State() currentYearCheck = new Date().getFullYear();
   /**
    *@HelperFunction
    */
+  setAllArray() {
+    this.month = getMonthsBetweenDates(this.limits.lower, this.limits.upper)
+      .filter(e => e.includes(this.ampm))
+      .map(e => e.split(' ')[0].toString());
+    this.month.push(' ');
+    this.month.unshift(' ');
+    return this.month;
+  }
   setClassSelected(arr, val) {
     try {
       if (arr.length === 0 || val === undefined) {
@@ -43,26 +50,18 @@ export class Idk22 {
       console.warn('error : ', error);
     }
   }
-  forMonth() {
-    const cells = this.monthScrollPortRef.querySelectorAll('.cell');
-    this.childElementsMonth = cells;
-  }
   forYEar() {
     const cells = this.yearSelRefScroll.querySelectorAll('.cell');
     this.childElementsYear = cells;
   }
   dateSetter(data, type) {
-    if (type === 'hour') {
-      return (this.hour = data);
-    } else {
-      return (this.ampm = data);
-    }
+    return (this.ampm = data);
   }
   helperFunForObservers(entry, arr, elToFindFrom, type) {
     if (!entry || !entry.target) {
       return;
     }
-    const pos = this.monthScrollPortRef;
+    const pos = this.yearSelRefScroll;
     const elGBC = pos.getBoundingClientRect();
     const containerTop = elGBC.top;
     const elTop = entry.boundingClientRect.top;
@@ -75,7 +74,7 @@ export class Idk22 {
       if (Math.round(elTop) - 1 <= containerTop || Math.round(elTop) - 1 < 200) {
         this.dateSetter(el?.innerHTML === ' ' ? arr[1]?.innerHTML : arr[index + 1]?.innerHTML, type);
       } else {
-        const res = el?.innerHTML === ' ' ? arr[len - 2]?.innerHTML : arr[index - 1]?.innerHTML;
+        const res = el?.innerHTML === ' ' ? arr[len - 2].innerHTML : arr[index - 1]?.innerHTML;
         this.dateSetter(res, type);
       }
     }
@@ -91,20 +90,18 @@ export class Idk22 {
   /**
    * @LifecycleMethod
    */
-  // connectedCallback() {
-  //   const emptyStr = '';
-  //   const arr = this.monthArrayReturn().slice(4, 8);
-  //   arr.push(emptyStr);
-  //   arr.unshift(emptyStr);
-  //   this.month = arr;
-  // }
+  connectedCallback() {
+    this.setAllArray();
+    this.year = calculateYears(this.limits.lower, this.limits.upper);
+    this.year.push(this.upperLimitYear);
+    const yearSet = new Set(this.year);
+    this.year = Array.from(yearSet);
+    this.year.push(' ');
+    this.year.unshift(' ');
+  }
   componentDidLoad() {
     this.initialScrollToActiveValue();
     const options = {
-      h: {
-        root: this.monthScrollPortRef,
-        threshold: 0.8,
-      },
       ampm: {
         root: this.yearSelRefScroll,
         threshold: 0.8,
@@ -113,21 +110,12 @@ export class Idk22 {
     /* ----------------------------------
             OBSERVERS callback
     -----------------------------------*/
-    const callbackHourIO = entries => {
-      this.callBackHelper(entries, hourElements, this.month, 'hour');
-    };
     const callbackMeridianIO = entries => {
       this.callBackHelper(entries, meridianElements, this.year, 'year');
     };
     /* ----------------------------------
             Set what to Observe on
     -----------------------------------*/
-    const hourElements = this.childElementsMonth;
-    const hourObserve = this.monthScrollPortRef.querySelector('.scrollport').querySelectorAll('.cell');
-    const hourObserver = new IntersectionObserver(callbackHourIO, options.h);
-    hourObserve.forEach(el => {
-      hourObserver.observe(el);
-    });
     const ampmObserver = this.yearSelRefScroll.querySelector('.scrollport').querySelectorAll('.cell');
     const meridianElements = this.childElementsYear;
     const ampmObserve = new IntersectionObserver(callbackMeridianIO, options.ampm);
@@ -138,13 +126,21 @@ export class Idk22 {
   /**
    * @Watchers
    */
-  @Watch('hour')
-  emitHour() {
-    this.setClassSelected(this.childElementsMonth, this.hour);
-    this.selectedDate.emit({ monthIndex: this.monthArray.indexOf(this.hour), month: this.hour, year: this.ampm });
+  someFun() {
+    console.log(this.ampm);
+    if (parseInt(this.ampm) > new Date().getFullYear()) {
+      this.nxtYear = this.setAllArray();
+    } else if (parseInt(this.ampm) < new Date().getFullYear()) {
+      this.prvYear = this.setAllArray();
+    } else {
+      this.month = this.setAllArray();
+      console.log('HERE', this.month);
+      return this.month;
+    }
   }
   @Watch('ampm')
   emitAMPM() {
+    // this.someFun();
     this.setClassSelected(this.childElementsYear, this.ampm);
     this.selectedDate.emit({ monthIndex: this.monthArray.indexOf(this.hour), month: this.hour, year: this.ampm });
   }
@@ -157,11 +153,6 @@ export class Idk22 {
       top: 33 * yearIndex,
       behavior: 'smooth',
     });
-    this.monthScrollPortRef.querySelector('.scrollport').scrollTo({
-      top: 33 * new Date().getMonth(),
-      behavior: 'smooth',
-    });
-    this.forMonth();
     this.forYEar();
   }
   /**
@@ -186,25 +177,6 @@ export class Idk22 {
       </div>
     ));
   };
-  forMonthWheel = (arr, selection) => {
-    return arr.map((time, index) => (
-      <div
-        aria-label={time}
-        style={{ opacity: time == selection ? '1' : '.3' }}
-        id={`hour_cell_${index}_id`}
-        part={`hour-cell-${time == this.hour ? 'selected-part' : 'not-selected-part'}`}
-        class={`cell  ${time == selection && 'selected'} ${time === ' ' && 'hide'} `}
-        ref={el => {
-          if (time !== selection) {
-            return;
-          }
-          this.monthSelRef = el as HTMLElement;
-        }}
-      >
-        {time}
-      </div>
-    ));
-  };
   /**
    * --------------------------
    * @returns HTML
@@ -214,25 +186,12 @@ export class Idk22 {
     return <div class="highlight border-bottom border-top" id="highlight" part="highlight-active"></div>;
   }
   renderWheel() {
-    this.month = getMonthsBetweenDates(this.limits.lower, this.limits.upper)
-      .filter(e => e.includes(this.currentYear))
-      .map(e => e.split(' ')[0].toString());
-    this.month.push(' ');
-    this.month.unshift(' ');
-    this.year = calculateYears(this.limits.lower, this.limits.upper);
-    this.year.push(this.upperLimitYear);
-    this.year.push(' ');
-    this.year.unshift(' ');
     return (
       <div class="wheels" id="wheel">
-        <div class="hour" id="hour_id" ref={el => (this.monthScrollPortRef = el as HTMLElement)}>
-          <div class="scrollport  hour" id="hour_scrollport">
-            {this.forMonthWheel(this.month, this.hour)}
-          </div>
-        </div>
+        <month-wheel month={this.currentYearCheck === new Date().getFullYear() ? this.month : []}></month-wheel>
         <div class="ampm" id="ampm_id" ref={el => (this.yearSelRefScroll = el as HTMLElement)}>
           <div class="scrollport" id="ampm_scrollport">
-            {this.forYearWheel(this.year, '2023')}
+            {this.forYearWheel(this.year, this.ampm)}
           </div>
         </div>
       </div>

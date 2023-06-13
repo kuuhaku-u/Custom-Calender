@@ -14,9 +14,9 @@ export class MyComponent {
   @Prop() dayNames = [];
   @Prop() monthNames = [];
   @Prop() showFillDays = true;
-  @Prop() limitLower = 214;
+  @Prop() limitLower = 334;
   @Prop() hasMinMax = true;
-  @Prop() limitUpper = 334;
+  @Prop() limitUpper = 434;
   /**
    * @states
    */
@@ -579,10 +579,17 @@ export class MyComponent {
       </div>
     );
   }
+  // renderModalContent() {
+  //   return (
+  //     <div class="all" part="calender-move-property-part" onMouseLeave={() => (this.openModal = false)}>
+  //       {this.openModal && <Fragment>{false ? this.renderFullCalendar() : this.renderCalendarWheel()}</Fragment>}
+  //     </div>
+  //   );
+  // }
   renderModalContent() {
     return (
       <div class="all" part="calender-move-property-part" onMouseLeave={() => (this.openModal = false)}>
-        {this.openModal && <Fragment>{false ? this.renderFullCalendar() : this.renderCalendarWheel()}</Fragment>}
+        {this.openModal && <Fragment>{!this.showTheWheel ? this.renderFullCalendar() : this.renderCalendarWheel()}</Fragment>}
       </div>
     );
   }
