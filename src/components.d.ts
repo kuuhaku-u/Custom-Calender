@@ -97,6 +97,7 @@ declare namespace LocalJSX {
         "currentYear"?: number;
         "limits"?: any;
         "onSelectedDate"?: (event: Idk22CustomEvent<{ monthIndex: Number; month: string | number; year: string }>) => void;
+        "onSelectedYEar"?: (event: Idk22CustomEvent<any>) => void;
         "upperLimitYear"?: number;
     }
     interface MonthWheel {

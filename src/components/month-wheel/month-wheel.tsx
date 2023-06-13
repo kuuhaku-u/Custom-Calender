@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Host, Prop, State, h, Event, Watch } from '@stencil/core';
+import { Component, EventEmitter, Host, Prop, State, h, Event, Watch, Listen } from '@stencil/core';
 @Component({
   tag: 'month-wheel',
   styleUrl: 'month-wheel.scss',
@@ -7,15 +7,24 @@ import { Component, EventEmitter, Host, Prop, State, h, Event, Watch } from '@st
 export class MonthWheel {
   @Prop() month: any[] = [' ', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', ' '];
   @State() hour: string | number = 'June';
+  @State() idkForNow = [' ', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', ' '];
   @State() ampm: any = new Date().getFullYear();
   @Event() selectedDate: EventEmitter<{ monthIndex: Number; month: string | number; year: string }>;
-  private year = [];
+  @State() selYear: any;
+  @State() monthChild;
   childElementsMonth: unknown = [];
-  childElementsYear: unknown = [];
   monthSelRef?: HTMLElement;
   monthScrollPortRef?: HTMLElement;
-  yearSelRef?: HTMLElement;
-  yearSelRefScroll?: HTMLElement;
+  @Listen('selectedYEar', { target: 'document' })
+  id(e) {
+    this.selYear = e.detail.year;
+  }
+  // @Watch('selYear')
+  // fs() {
+  //   console.log('f');
+  //   if
+  //   this.month = [' ', 'January', 'February', ' '];
+  // }
   /**
    *@HelperFunction
    */
@@ -146,7 +155,6 @@ export class MonthWheel {
     ));
   };
   render() {
-    console.log(this.month);
     return (
       <Host>
         <slot>

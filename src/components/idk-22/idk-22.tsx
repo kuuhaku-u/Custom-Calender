@@ -17,6 +17,7 @@ export class Idk22 {
   @State() prvYear: any[] = [];
   @State() nxtYear: any[] = [];
   @Event() selectedDate: EventEmitter<{ monthIndex: Number; month: string | number; year: string }>;
+  @Event({ bubbles: true, composed: true }) selectedYEar: EventEmitter<any>;
   private year = [];
   childElementsYear: unknown = [];
   yearSelRef?: HTMLElement;
@@ -55,7 +56,7 @@ export class Idk22 {
     this.childElementsYear = cells;
   }
   dateSetter(data, type) {
-    return (this.ampm = data);
+    this.ampm = data;
   }
   helperFunForObservers(entry, arr, elToFindFrom, type) {
     if (!entry || !entry.target) {
@@ -127,14 +128,12 @@ export class Idk22 {
    * @Watchers
    */
   someFun() {
-    console.log(this.ampm);
     if (parseInt(this.ampm) > new Date().getFullYear()) {
       this.nxtYear = this.setAllArray();
     } else if (parseInt(this.ampm) < new Date().getFullYear()) {
       this.prvYear = this.setAllArray();
     } else {
       this.month = this.setAllArray();
-      console.log('HERE', this.month);
       return this.month;
     }
   }
@@ -142,8 +141,14 @@ export class Idk22 {
   emitAMPM() {
     // this.someFun();
     this.setClassSelected(this.childElementsYear, this.ampm);
+    this.selectedYEar.emit({ year: this.ampm });
     this.selectedDate.emit({ monthIndex: this.monthArray.indexOf(this.hour), month: this.hour, year: this.ampm });
   }
+  // @Watch('ampm')
+  // emitSelYear() {
+  //   // this.someFun();
+  //   // this.setClassSelected(this.childElementsYear, this.ampm);
+  // }
   /**
    * Fire every time component get attached to DOM to scroll to  active time
    */
@@ -188,7 +193,7 @@ export class Idk22 {
   renderWheel() {
     return (
       <div class="wheels" id="wheel">
-        <month-wheel month={this.currentYearCheck === new Date().getFullYear() ? this.month : []}></month-wheel>
+        <month-wheel month={this.currentYearCheck === new Date().getFullYear() ? this.month : []} />
         <div class="ampm" id="ampm_id" ref={el => (this.yearSelRefScroll = el as HTMLElement)}>
           <div class="scrollport" id="ampm_scrollport">
             {this.forYearWheel(this.year, this.ampm)}
