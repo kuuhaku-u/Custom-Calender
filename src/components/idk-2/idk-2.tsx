@@ -23,7 +23,7 @@ export class Idk2 {
   renderHeader() {
     return (
       <header onClick={() => this.selectedMonthEvent.emit({ clicked: true, selectedMonth: this.selectedMonth, indexOfMonth: this._monthIndex })}>
-        <div style={{ cursor: 'pointer' }}>{this._currentMonth}</div>
+        <div style={{ cursor: 'pointer' }}>{this._currentMonth || "MONTH"}</div>
       </header>
     );
   }

@@ -132,14 +132,14 @@ export class Idk22 {
       this.month = this.setAllArray();
       const desiredLength = 13;
       while (this.month.length < desiredLength) {
-        this.month.push('');
+        this.month.push(' ');
       }
       this.month.push(' ');
     } else if (parseInt(this.ampm) < new Date().getFullYear()) {
       this.month = this.setAllArray();
       const desiredLength = 13;
       while (this.month.length < desiredLength) {
-        this.month.unshift('');
+        this.month.unshift(' ');
       }
       this.month.unshift(' ');
     } else {

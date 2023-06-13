@@ -6,9 +6,9 @@ import { Component, EventEmitter, Host, Prop, State, h, Event, Watch, Listen } f
 })
 export class MonthWheel {
   @Prop() month: any[];
-  //  = [' ', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', ' '];
   private _monthArr: any[] = [' ', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', ' '];
   @State() hour: string | number = 'June';
+  @State() idk: boolean = false;
   @State() ampm: any = new Date().getFullYear();
   @Event() selectedDate: EventEmitter<{ monthIndex: Number; month: string | number; year: string }>;
   @State() selYear: any;
@@ -58,6 +58,7 @@ export class MonthWheel {
     this.childElementsMonth = cells;
   }
   dateSetter(data, type) {
+    this.idk = data === ' ' ? true : false;
     if (type === 'hour') {
       return (this.hour = data);
     } else {
@@ -167,7 +168,7 @@ export class MonthWheel {
       <Host>
         <slot>
           <div class="hour" id="hour_id" ref={el => (this.monthScrollPortRef = el as HTMLElement)}>
-            <div class="scrollport  hour" id="hour_scrollport">
+            <div class="scrollport  hour" style={{ overFlow: this.idk ? 'hidden' : 'scroll' }} id="hour_scrollport">
               {this.forMonthWheel(this.month, this.hour)}
             </div>
           </div>

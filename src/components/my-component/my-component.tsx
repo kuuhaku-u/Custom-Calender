@@ -354,6 +354,17 @@ export class MyComponent {
       this.setCalendarDetails();
     }
   };
+  getIndicesOfValue = (array: number[], value: number): number[] => {
+    return array.reduce((acc, currentElement, currentIndex) => {
+      if (currentElement === value) {
+        acc.push(currentIndex);
+      }
+      return acc;
+    }, []);
+  };
+  isLowerLieInSameYearFun = (): boolean => {
+    return this.date.year === this._lowerLimitYear;
+  };
   /**
    *
    * @function nxt_month
