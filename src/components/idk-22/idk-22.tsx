@@ -126,7 +126,7 @@ export class Idk22 {
   }
   /**
    * @Watchers
-   */8
+   */ 8;
   someFun() {
     if (parseInt(this.ampm) > new Date().getFullYear()) {
       this.month = this.setAllArray();
@@ -192,7 +192,7 @@ export class Idk22 {
   renderWheel() {
     return (
       <div class="wheels" id="wheel">
-        <month-wheel month={this.month} />
+        <month-wheel month={this.month} limits={this.limits} />
         <div class="ampm" id="ampm_id" ref={el => (this.yearSelRefScroll = el as HTMLElement)}>
           <div class="scrollport" id="ampm_scrollport">
             {this.forYearWheel(this.year, this.ampm)}

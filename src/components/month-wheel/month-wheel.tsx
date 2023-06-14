@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Host, Prop, State, h, Event, Watch, Listen } from '@stencil/core';
+import { getMonthsBetweenDates } from '../../utils/calendar';
 @Component({
   tag: 'month-wheel',
   styleUrl: 'month-wheel.scss',
@@ -6,18 +7,50 @@ import { Component, EventEmitter, Host, Prop, State, h, Event, Watch, Listen } f
 })
 export class MonthWheel {
   @Prop() month: any[];
-  private _monthArr: any[] = [' ', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', ' '];
+  // private _monthArr: any[] = [' ', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', ' '];
   @State() hour: string | number = 'June';
+  @Prop() limits: any;
   @State() idk: boolean = false;
   @State() ampm: any = new Date().getFullYear();
   @Event() selectedDate: EventEmitter<{ monthIndex: Number; month: string | number; year: string }>;
   @State() selYear: any;
+  @State() disableScroll = false;
   childElementsMonth: unknown = [];
   monthSelRef?: HTMLElement;
   monthScrollPortRef?: HTMLElement;
+  setAllArray() {
+    this.month = getMonthsBetweenDates(this.limits.lower, this.limits.upper)
+      .filter(e => e.includes(this.ampm))
+      .map(e => e.split(' ')[0].toString());
+    this.month.push(' ');
+    this.month.unshift(' ');
+    return this.month;
+  }
+  someFun() {
+    if (parseInt(this.ampm) > new Date().getFullYear()) {
+      this.month = this.setAllArray();
+      const desiredLength = 13;
+      while (this.month.length < desiredLength) {
+        this.month.push(' ');
+      }
+      this.month.push(' ');
+    } else if (parseInt(this.ampm) < new Date().getFullYear()) {
+      this.month = this.setAllArray();
+      const desiredLength = 13;
+      while (this.month.length < desiredLength) {
+        this.month.unshift(' ');
+      }
+      this.month.unshift(' ');
+    } else  if (this.ampm == 2023){
+      this.month = this.setAllArray();
+      return this.month;
+    }
+  }
   @Listen('selectedYEar', { target: 'document' })
   id(e) {
     this.selYear = e.detail.year;
+    // this.someFun();
+    console.log(this.month);
     if (this.selYear == ' ') {
       return;
     }
@@ -65,6 +98,19 @@ export class MonthWheel {
       return (this.ampm = data);
     }
   }
+  forLower() {
+    this.month = this.month.filter(e => e !== ' ');
+    this.month.push(' ');
+    this.month.unshift(' ');
+    return this.month[this.month.length - 2];
+  }
+  forUpper() {
+    this.disableScroll = true;
+    this.month = this.month.filter(e => e !== ' ');
+    this.month.push(' ');
+    this.month.unshift(' ');
+    return this.month[2];
+  }
   helperFunForObservers(entry, arr, elToFindFrom, type) {
     if (!entry || !entry.target) {
       return;
@@ -80,16 +126,14 @@ export class MonthWheel {
       const temp = elToFindFrom;
       const index = temp.indexOf(n);
       if (Math.round(elTop) - 1 <= containerTop || Math.round(elTop) - 1 < 200) {
-        console.log('IF');
         this.dateSetter(el?.innerHTML === ' ' ? arr[1]?.innerHTML : arr[index + 1]?.innerHTML, type);
       } else {
         let res;
-        console.log('ELSE', this.month);
         if (this.selYear < 2023) {
           this.month.length;
-          res = el?.innerHTML === ' ' ? this.month[1] : arr[index - 1]?.innerHTML;
+          res = el?.innerHTML === ' ' ? this.forLower() : arr[index - 1]?.innerHTML;
         } else if (this.selYear > 2023) {
-          res = el?.innerHTML === ' ' ? this.month[2] : arr[index - 1]?.innerHTML;
+          res = el?.innerHTML === ' ' ? this.forUpper() : arr[index - 1]?.innerHTML;
         } else {
           res = el?.innerHTML === ' ' ? arr[len - 2].innerHTML : arr[index - 1]?.innerHTML;
         }
@@ -108,7 +152,6 @@ export class MonthWheel {
   /**
    * @LifecycleMethod
    */
-  disableScroll = true;
   componentDidLoad() {
     this.initialScrollToActiveValue();
     const options = {
@@ -130,9 +173,7 @@ export class MonthWheel {
       //   event.preventDefault();
       //   return;
       // }
-      console.log(':n');
       return;
-      // console.log(':n');
     });
     const hourElements = this.childElementsMonth;
     const hourObserve = this.monthScrollPortRef.querySelector('.scrollport').querySelectorAll('.cell');
@@ -148,7 +189,6 @@ export class MonthWheel {
         event.preventDefault();
         return;
       }
-      console.log(':n');
     });
   }
   /**
@@ -156,24 +196,16 @@ export class MonthWheel {
    */
   @Watch('hour')
   emitHour() {
-    // this.setClassSelected(this.childElementsMonth, this.hour);
-    // if()
     this.selectedDate.emit({ monthIndex: this.month.indexOf(this.hour), month: this.hour, year: this.ampm });
   }
-  /**
-   * Fire every time component get attached to DOM to scroll to  active time
-   */
   initialScrollToActiveValue() {
-    const monthIndex = this._monthArr.indexOf(this.hour) - 1;
+    const monthIndex = this.month.indexOf(this.hour) - 1;
     this.monthScrollPortRef.querySelector('.scrollport').scrollTo({
       top: 33 * monthIndex,
       behavior: 'smooth',
     });
     this.forMonth();
   }
-  /**
-   *@HelperFunction
-   */
   forMonthWheel = (arr, selection) => {
     return arr.map((time, index) => (
       <div
@@ -198,7 +230,7 @@ export class MonthWheel {
       <Host>
         <slot>
           <div class="hour" id="hour_id" ref={el => (this.monthScrollPortRef = el as HTMLElement)}>
-            <div class="scrollport  hour" style={{ overFlow: this.idk ? 'hidden' : 'scroll' }} id="hour_scrollport">
+            <div class="scrollport  hour" style={{ overFlow: this.disableScroll ? 'hidden' : 'scroll' }} id="hour_scrollport">
               {this.forMonthWheel(this.month, this.hour)}
             </div>
           </div>

@@ -14,7 +14,7 @@ export class MyComponent {
   @Prop() dayNames = [];
   @Prop() monthNames = [];
   @Prop() showFillDays = true;
-  @Prop() limitLower = 24;
+  @Prop() limitLower = 224;
   @Prop() hasMinMax = true;
   @Prop() limitUpper = 261;
   /**
