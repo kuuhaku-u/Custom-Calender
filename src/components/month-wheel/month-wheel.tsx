@@ -29,7 +29,7 @@ export class MonthWheel {
       this.hour = 'January';
       this.initialScrollToActiveValue();
     } else {
-      this.hour = 'Jube';
+      this.hour = 'June';
       this.initialScrollToActiveValue();
     }
   }
@@ -80,9 +80,19 @@ export class MonthWheel {
       const temp = elToFindFrom;
       const index = temp.indexOf(n);
       if (Math.round(elTop) - 1 <= containerTop || Math.round(elTop) - 1 < 200) {
+        console.log('IF');
         this.dateSetter(el?.innerHTML === ' ' ? arr[1]?.innerHTML : arr[index + 1]?.innerHTML, type);
       } else {
-        const res = el?.innerHTML === ' ' ? arr[len - 2].innerHTML : arr[index - 1]?.innerHTML;
+        let res;
+        console.log('ELSE', this.month);
+        if (this.selYear < 2023) {
+          this.month.length;
+          res = el?.innerHTML === ' ' ? this.month[1] : arr[index - 1]?.innerHTML;
+        } else if (this.selYear > 2023) {
+          res = el?.innerHTML === ' ' ? this.month[2] : arr[index - 1]?.innerHTML;
+        } else {
+          res = el?.innerHTML === ' ' ? arr[len - 2].innerHTML : arr[index - 1]?.innerHTML;
+        }
         this.dateSetter(res, type);
       }
     }
@@ -98,6 +108,7 @@ export class MonthWheel {
   /**
    * @LifecycleMethod
    */
+  disableScroll = true;
   componentDidLoad() {
     this.initialScrollToActiveValue();
     const options = {
@@ -106,15 +117,23 @@ export class MonthWheel {
         threshold: 0.8,
       },
     };
-    /* ----------------------------------
-            OBSERVERS callback
-    -----------------------------------*/
     const callbackHourIO = entries => {
       this.callBackHelper(entries, hourElements, this.month, 'hour');
     };
-    /* ----------------------------------
-            Set what to Observe on
-    -----------------------------------*/
+    // handleKeyDown =/
+    document.addEventListener('onkeydown', (event: KeyboardEvent) => {
+      if (this.disableScroll && event.key !== 'ArrowDown') {
+        event.preventDefault();
+        return;
+      }
+      // if (this.disableScroll && event.key === 'ArrowDown') {
+      //   event.preventDefault();
+      //   return;
+      // }
+      console.log(':n');
+      return;
+      // console.log(':n');
+    });
     const hourElements = this.childElementsMonth;
     const hourObserve = this.monthScrollPortRef.querySelector('.scrollport').querySelectorAll('.cell');
     const hourObserver = new IntersectionObserver(callbackHourIO, options.h);
@@ -122,12 +141,23 @@ export class MonthWheel {
       hourObserver.observe(el);
     });
   }
+  disconnectedCallBack() {
+    // ...
+    document.removeEventListener('keydown', (event: KeyboardEvent) => {
+      if (this.disableScroll) {
+        event.preventDefault();
+        return;
+      }
+      console.log(':n');
+    });
+  }
   /**
    * @Watchers
    */
   @Watch('hour')
   emitHour() {
-    this.setClassSelected(this.childElementsMonth, this.hour);
+    // this.setClassSelected(this.childElementsMonth, this.hour);
+    // if()
     this.selectedDate.emit({ monthIndex: this.month.indexOf(this.hour), month: this.hour, year: this.ampm });
   }
   /**
