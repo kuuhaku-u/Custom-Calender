@@ -126,7 +126,7 @@ export class Idk22 {
   }
   /**
    * @Watchers
-   */ 8;
+   */
   someFun() {
     if (parseInt(this.ampm) > new Date().getFullYear()) {
       this.month = this.setAllArray();

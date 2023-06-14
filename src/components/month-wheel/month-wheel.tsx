@@ -5,12 +5,16 @@ import { getMonthsBetweenDates } from '../../utils/calendar';
   styleUrl: 'month-wheel.scss',
   shadow: true,
 })
+/**
+ * @NOTES
+ *@ONE_myProp_will_be_year
+ */
 export class MonthWheel {
   @Prop() month: any[];
-  // private _monthArr: any[] = [' ', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', ' '];
   @State() hour: string | number = 'June';
   @Prop() limits: any;
   @State() idk: boolean = false;
+  private isConnected: boolean = true;
   @State() ampm: any = new Date().getFullYear();
   @Event() selectedDate: EventEmitter<{ monthIndex: Number; month: string | number; year: string }>;
   @State() selYear: any;
@@ -25,6 +29,37 @@ export class MonthWheel {
     this.month.push(' ');
     this.month.unshift(' ');
     return this.month;
+  }
+  // @Watch('ampm')
+  // handlePropChange(newValue: string, oldValue: string) {
+  //   if (newValue === ' ') {
+  //     this.disconnect();
+  //     return;
+  //   }else{
+
+  //   this.reconnect();
+  //   }
+  // }
+  disconnect() {
+    if (this.isConnected) {
+      // Disconnect logic
+      // Example: Remove event listeners or clean up resources
+      // ...
+      this.isConnected = false;
+      // Remove component from the DOM
+      this.removeComponent();
+    }
+  }
+  reconnect() {
+    if (!this.isConnected) {
+      // Reconnect logic
+      // Example: Add event listeners or initialize resources
+      // ...
+      this.isConnected = true;
+      // Reattach component to the DOM
+      const hostElement = document.createElement('month-wheel');
+      document.body.appendChild(hostElement);
+    }
   }
   someFun() {
     if (parseInt(this.ampm) > new Date().getFullYear()) {
@@ -41,29 +76,49 @@ export class MonthWheel {
         this.month.unshift(' ');
       }
       this.month.unshift(' ');
-    } else  if (this.ampm == 2023){
+    } else if (this.ampm == 2023) {
       this.month = this.setAllArray();
       return this.month;
     }
   }
   @Listen('selectedYEar', { target: 'document' })
   id(e) {
-    this.selYear = e.detail.year;
     // this.someFun();
-    console.log(this.month);
     if (this.selYear == ' ') {
       return;
     }
+    // if (e.detail !== 2023) {
+    this.disconnect();
+    // } else {
+    this.reconnect();
+    // }
+    this.selYear = e.detail.year;
     if (this.selYear < 2023) {
+      this.month = [];
+      this.month = this.setAllArray();
+      const desiredLength = 13;
+      while (this.month.length < desiredLength) {
+        this.month.unshift(' ');
+      }
+      this.month.unshift(' ');
       this.hour = 'December';
       this.initialScrollToActiveValue();
     }
     if (this.selYear > 2024) {
+      this.month = [];
+      this.month = this.setAllArray();
+      const desiredLength = 13;
+      while (this.month.length < desiredLength) {
+        this.month.push(' ');
+      }
       this.hour = 'January';
       this.initialScrollToActiveValue();
     } else {
+      this.month = [];
+      this.month = this.setAllArray();
       this.hour = 'June';
       this.initialScrollToActiveValue();
+      // return this.month;
     }
   }
   /**
@@ -225,7 +280,21 @@ export class MonthWheel {
       </div>
     ));
   };
+  cleanup() {
+    // Cleanup logic
+    // Example: Clean up any remaining resources or perform final actions
+    // ...
+  }
+  removeComponent() {
+    const hostElement = document.querySelector('wheel-month');
+    if (hostElement) {
+      hostElement.parentNode.removeChild(hostElement);
+    }
+  }
   render() {
+    if (!this.isConnected) {
+      return null; // Don't render anything if disconnected
+    }
     return (
       <Host>
         <slot>
