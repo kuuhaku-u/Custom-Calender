@@ -92,7 +92,7 @@ export class Idk22 {
     const cells = this.yearSelRefScroll.querySelectorAll('.cell');
     this.childElementsYear = cells;
   }
-  dateSetter(data, type) {
+  dateSetter(data) {
     this.ampm = data;
   }
   helperFunForObservers(entry, arr, elToFindFrom, type) {
@@ -110,10 +110,10 @@ export class Idk22 {
       const temp = elToFindFrom;
       const index = temp.indexOf(n);
       if (Math.round(elTop) - 1 <= containerTop || Math.round(elTop) - 1 < 200) {
-        this.dateSetter(el?.innerHTML === ' ' ? arr[1]?.innerHTML : arr[index + 1]?.innerHTML, type);
+        this.dateSetter(el?.innerHTML === ' ' ? arr[1]?.innerHTML : arr[index + 1]?.innerHTML);
       } else {
         const res = el?.innerHTML === ' ' ? arr[len - 2].innerHTML : arr[index - 1]?.innerHTML;
-        this.dateSetter(res, type);
+        this.dateSetter(res);
       }
     }
   }
@@ -128,21 +128,10 @@ export class Idk22 {
   someFun() {
     if (parseInt(this.ampm) > new Date().getFullYear()) {
       this.month = this.setAllArray();
-      const desiredLength = 13;
-      while (this.month.length < desiredLength) {
-        this.month.push(' ');
-      }
-      this.month.push(' ');
     } else if (parseInt(this.ampm) < new Date().getFullYear()) {
       this.month = this.setAllArray();
-      const desiredLength = 13;
-      while (this.month.length < desiredLength) {
-        this.month.unshift(' ');
-      }
-      this.month.unshift(' ');
     } else {
       this.month = this.setAllArray();
-      return this.month;
     }
   }
   initialScrollToActiveValue() {
@@ -178,7 +167,10 @@ export class Idk22 {
   renderWheel() {
     return (
       <div class="wheels" id="wheel">
+        <div>
+
         <month-wheel month={this.month} limits={this.limits} />
+        </div>
         <div class="ampm" id="ampm_id" ref={el => (this.yearSelRefScroll = el as HTMLElement)}>
           <div class="scrollport" id="ampm_scrollport">
             {this.forYearWheel(this.year, this.ampm)}

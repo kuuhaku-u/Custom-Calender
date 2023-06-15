@@ -12,7 +12,8 @@
     <!-- <script>
       const calendar = document.querySelector('my-component');
       calendar.dayNames = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'So'];
-      calendar.monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      calendar.months = [' ','January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December',' '];
+      calendar.years = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'So'];
       window.addEventListener('dayChanged', e => {
         console.log(e.detail, 'Day');
       });
@@ -44,5 +45,6 @@
         myComponent.setAttribute('my-prop', 'reconnect');
       });
     </script>
+    <!-- <h1>Stencil  -->
   </body>
 </html>
