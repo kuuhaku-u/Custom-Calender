@@ -10,16 +10,15 @@ import { getMonthsBetweenDates } from '../../utils/calendar';
  *@ONE_myProp_will_be_year
  */
 export class MonthWheel {
-  @Prop() month: any[];
+  @Prop() month: any[] = [' ', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', ' '];
   @State() hour: string | number = 'June';
   @Prop() limits: any;
   @State() idk: boolean = false;
   private isConnected: boolean = true;
   @State() ampm: any = new Date().getFullYear();
-  @Event() selectedDate: EventEmitter<{ monthIndex: Number; month: string | number; year: string }>;
+  @Event() selectedDate: EventEmitter<{ monthIndex: number; month: string | number; year: string }>;
   @State() selYear: any;
-  @State() disableScroll = false;
-  childElementsMonth: unknown = [];
+  childElementsMonth:any = [];
   monthSelRef?: HTMLElement;
   monthScrollPortRef?: HTMLElement;
   setAllArray() {
@@ -82,8 +81,8 @@ export class MonthWheel {
     }
   }
   @Listen('selectedYEar', { target: 'document' })
-  id(e) {
-    // this.someFun();
+  id(e: CustomEvent) {
+    this.selYear = e.detail.year;
     if (this.selYear == ' ') {
       return;
     }
@@ -114,22 +113,17 @@ export class MonthWheel {
       this.hour = 'January';
       this.initialScrollToActiveValue();
     } else {
-      this.month = [];
-      this.month = this.setAllArray();
       this.hour = 'June';
       this.initialScrollToActiveValue();
       // return this.month;
     }
   }
-  /**
-   *@HelperFunction
-   */
-  setClassSelected(arr, val) {
+  setClassSelected(arr: HTMLElement[], val: string | number) {
     try {
       if (arr.length === 0 || val === undefined) {
         return;
       } else {
-        arr.forEach(node => {
+        arr.forEach((node: HTMLElement) => {
           if (node.innerHTML === val) {
             node.classList.add('selected');
           } else {
@@ -145,28 +139,14 @@ export class MonthWheel {
     const cells = this.monthScrollPortRef.querySelectorAll('.cell');
     this.childElementsMonth = cells;
   }
-  dateSetter(data, type) {
-    this.idk = data === ' ' ? true : false;
+  dateSetter(data: string | number, type: string) {
     if (type === 'hour') {
       return (this.hour = data);
     } else {
       return (this.ampm = data);
     }
   }
-  forLower() {
-    this.month = this.month.filter(e => e !== ' ');
-    this.month.push(' ');
-    this.month.unshift(' ');
-    return this.month[this.month.length - 2];
-  }
-  forUpper() {
-    this.disableScroll = true;
-    this.month = this.month.filter(e => e !== ' ');
-    this.month.push(' ');
-    this.month.unshift(' ');
-    return this.month[2];
-  }
-  helperFunForObservers(entry, arr, elToFindFrom, type) {
+  helperFunForObservers(entry: IntersectionObserverEntry | null, arr: HTMLElement[], elToFindFrom: any[], type: string) {
     if (!entry || !entry.target) {
       return;
     }
@@ -176,8 +156,8 @@ export class MonthWheel {
     const elTop = entry.boundingClientRect.top;
     const len = arr.length;
     if (entry.isIntersecting) {
-      const el = entry.target;
-      const n = el.innerHTML && !isNaN(el?.innerHTML) ? Number(el?.innerHTML) : el?.innerHTML;
+      const el = entry.target as HTMLElement;
+      const n = el.innerHTML && !isNaN((el?.innerHTML as any)) ? Number(el?.innerHTML) : el?.innerHTML;
       const temp = elToFindFrom;
       const index = temp.indexOf(n);
       if (Math.round(elTop) - 1 <= containerTop || Math.round(elTop) - 1 < 200) {
@@ -196,17 +176,14 @@ export class MonthWheel {
       }
     }
   }
-  callBackHelper(entries, arr, elArr, type) {
-    entries.forEach(entry => {
+  callBackHelper(entries: IntersectionObserverEntry[], arr: HTMLElement[], elArr: any[], type: string) {
+    entries.forEach((entry: IntersectionObserverEntry | null) => {
       if (entry === undefined || entry === null) {
         return undefined;
       }
       this.helperFunForObservers(entry, arr, elArr, type);
     });
   }
-  /**
-   * @LifecycleMethod
-   */
   componentDidLoad() {
     this.initialScrollToActiveValue();
     const options = {
@@ -215,40 +192,16 @@ export class MonthWheel {
         threshold: 0.8,
       },
     };
-    const callbackHourIO = entries => {
+    const callbackHourIO = (entries: IntersectionObserverEntry[]) => {
       this.callBackHelper(entries, hourElements, this.month, 'hour');
     };
-    // handleKeyDown =/
-    document.addEventListener('onkeydown', (event: KeyboardEvent) => {
-      if (this.disableScroll && event.key !== 'ArrowDown') {
-        event.preventDefault();
-        return;
-      }
-      // if (this.disableScroll && event.key === 'ArrowDown') {
-      //   event.preventDefault();
-      //   return;
-      // }
-      return;
-    });
     const hourElements = this.childElementsMonth;
     const hourObserve = this.monthScrollPortRef.querySelector('.scrollport').querySelectorAll('.cell');
     const hourObserver = new IntersectionObserver(callbackHourIO, options.h);
-    hourObserve.forEach(el => {
+    hourObserve.forEach((el: HTMLElement) => {
       hourObserver.observe(el);
     });
   }
-  disconnectedCallBack() {
-    // ...
-    document.removeEventListener('keydown', (event: KeyboardEvent) => {
-      if (this.disableScroll) {
-        event.preventDefault();
-        return;
-      }
-    });
-  }
-  /**
-   * @Watchers
-   */
   @Watch('hour')
   emitHour() {
     this.selectedDate.emit({ monthIndex: this.month.indexOf(this.hour), month: this.hour, year: this.ampm });
@@ -261,19 +214,19 @@ export class MonthWheel {
     });
     this.forMonth();
   }
-  forMonthWheel = (arr, selection) => {
+  forMonthWheel = (arr: any[], selection: string | number) => {
     return arr.map((time, index) => (
       <div
         aria-label={time}
         style={{ opacity: time == selection ? '1' : '.3' }}
         id={`hour_cell_${index}_id`}
         part={`hour-cell-${time == this.hour ? 'selected-part' : 'not-selected-part'}`}
-        class={`cell  ${time == selection && 'selected'} ${time === ' ' && 'hide'} `}
-        ref={el => {
+        class={`cell ${time == selection && 'selected'} ${time === ' ' && 'hide'}`}
+        ref={(el: HTMLElement) => {
           if (time !== selection) {
             return;
           }
-          this.monthSelRef = el as HTMLElement;
+          this.monthSelRef = el;
         }}
       >
         {time}
@@ -298,8 +251,8 @@ export class MonthWheel {
     return (
       <Host>
         <slot>
-          <div class="hour" id="hour_id" ref={el => (this.monthScrollPortRef = el as HTMLElement)}>
-            <div class="scrollport  hour" style={{ overFlow: this.disableScroll ? 'hidden' : 'scroll' }} id="hour_scrollport">
+          <div class="hour" id="hour_id" ref={(el: HTMLElement) => (this.monthScrollPortRef = el)}>
+            <div class="scrollport hour" id="hour_scrollport">
               {this.forMonthWheel(this.month, this.hour)}
             </div>
           </div>

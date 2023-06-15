@@ -41,7 +41,6 @@
 .container {
   display: flex;
   width: 10rem;
-  display: flex;
   align-items: center;
   justify-content: center;
 }
@@ -68,11 +67,11 @@
   align-items: center;
   color: #000;
   font-size: 1.4rem;
-  height: 33%
+  height: 33%;
 }
 .scrollport::-webkit-scrollbar {
   width: 0em;
-  background-color: #F5F5F5;
+  background-color: #f5f5f5;
 }
 .scrollable {
   height: 100px;

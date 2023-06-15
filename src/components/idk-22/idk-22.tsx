@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Host, State, Watch, h, Event, Prop } from '@stencil/core';
+import { Component, Event, EventEmitter, h, Host, Prop, State, Watch } from '@stencil/core';
 import { calculateYears, getMonthsBetweenDates } from '../../utils/calendar';
 @Component({
   tag: 'idk-22',
@@ -23,9 +23,46 @@ export class Idk22 {
   yearSelRef?: HTMLElement;
   yearSelRefScroll?: HTMLElement;
   @State() currentYearCheck = new Date().getFullYear();
-  /**
-   *@HelperFunction
-   */
+  connectedCallback() {
+    this.setAllArray();
+    this.year = calculateYears(this.limits.lower, this.limits.upper);
+    this.year.push(this.upperLimitYear);
+    const yearSet = new Set(this.year);
+    this.year = Array.from(yearSet);
+    this.year.push(' ');
+    this.year.unshift(' ');
+  }
+  componentDidLoad() {
+    this.initialScrollToActiveValue();
+    const options = {
+      ampm: {
+        root: this.yearSelRefScroll,
+        threshold: 0.8,
+      },
+    };
+    /* ----------------------------------
+            OBSERVERS callback
+    -----------------------------------*/
+    const callbackMeridianIO = entries => {
+      this.callBackHelper(entries, meridianElements, this.year, 'year');
+    };
+    /* ----------------------------------
+            Set what to Observe on
+    -----------------------------------*/
+    const ampmObserver = this.yearSelRefScroll.querySelector('.scrollport').querySelectorAll('.cell');
+    const meridianElements = this.childElementsYear;
+    const ampmObserve = new IntersectionObserver(callbackMeridianIO, options.ampm);
+    ampmObserver.forEach(el => {
+      ampmObserve.observe(el);
+    });
+  }
+  @Watch('ampm')
+  emitAMPM() {
+    this.someFun();
+    this.setClassSelected(this.childElementsYear, this.ampm);
+    this.selectedYEar.emit({ year: this.ampm });
+    this.selectedDate.emit({ monthIndex: this.monthArray.indexOf(this.hour), month: this.hour, year: this.ampm });
+  }
   setAllArray() {
     this.month = getMonthsBetweenDates(this.limits.lower, this.limits.upper)
       .filter(e => e.includes(this.ampm))
@@ -88,45 +125,6 @@ export class Idk22 {
       this.helperFunForObservers(entry, arr, elArr, type);
     });
   }
-  /**
-   * @LifecycleMethod
-   */
-  connectedCallback() {
-    this.setAllArray();
-    this.year = calculateYears(this.limits.lower, this.limits.upper);
-    this.year.push(this.upperLimitYear);
-    const yearSet = new Set(this.year);
-    this.year = Array.from(yearSet);
-    this.year.push(' ');
-    this.year.unshift(' ');
-  }
-  componentDidLoad() {
-    this.initialScrollToActiveValue();
-    const options = {
-      ampm: {
-        root: this.yearSelRefScroll,
-        threshold: 0.8,
-      },
-    };
-    /* ----------------------------------
-            OBSERVERS callback
-    -----------------------------------*/
-    const callbackMeridianIO = entries => {
-      this.callBackHelper(entries, meridianElements, this.year, 'year');
-    };
-    /* ----------------------------------
-            Set what to Observe on
-    -----------------------------------*/
-    const ampmObserver = this.yearSelRefScroll.querySelector('.scrollport').querySelectorAll('.cell');
-    const meridianElements = this.childElementsYear;
-    const ampmObserve = new IntersectionObserver(callbackMeridianIO, options.ampm);
-    ampmObserver.forEach(el => {
-      ampmObserve.observe(el);
-    });
-  }
-  /**
-   * @Watchers
-   */
   someFun() {
     if (parseInt(this.ampm) > new Date().getFullYear()) {
       this.month = this.setAllArray();
@@ -146,13 +144,6 @@ export class Idk22 {
       this.month = this.setAllArray();
       return this.month;
     }
-  }
-  @Watch('ampm')
-  emitAMPM() {
-    this.someFun();
-    this.setClassSelected(this.childElementsYear, this.ampm);
-    this.selectedYEar.emit({ year: this.ampm });
-    this.selectedDate.emit({ monthIndex: this.monthArray.indexOf(this.hour), month: this.hour, year: this.ampm });
   }
   initialScrollToActiveValue() {
     const yearIndex = this.year.indexOf(new Date().getUTCFullYear()) - 1;
@@ -181,11 +172,6 @@ export class Idk22 {
       </div>
     ));
   };
-  /**
-   * --------------------------
-   * @returns HTML
-   * ----------------------
-   */
   activeTimeHighLight() {
     return <div class="highlight border-bottom border-top" id="highlight" part="highlight-active"></div>;
   }
