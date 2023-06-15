@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Host, Prop, State, h, Event, Watch, Listen } from '@stencil/core';
-import { getMonthsBetweenDates } from '../../utils/calendar';
 @Component({
   tag: 'month-wheel',
   styleUrl: 'month-wheel.scss',
@@ -173,9 +172,6 @@ export class MonthWheel {
     ));
   };
   render() {
-    if (!this.isConnected) {
-      return null; // Don't render anything if disconnected
-    }
     return (
       <Host>
         <slot>
