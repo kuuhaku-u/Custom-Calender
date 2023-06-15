@@ -8,14 +8,43 @@
     <script nomodule src="/build/stencil-calendar.js"></script>
   </head>
   <body>
-    <my-component show-fill-days="false"></my-component>
-    <script>
+    <!-- <my-component show-fill-days="false"></my-component> -->
+    <!-- <script>
       const calendar = document.querySelector('my-component');
       calendar.dayNames = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'So'];
-      calendar.monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      calendar.months = [' ','January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December',' '];
+      calendar.years = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'So'];
       window.addEventListener('dayChanged', e => {
         console.log(e.detail, 'Day');
       });
+    </script> -->
+    <h1>Stencil Disconnect Example</h1>
+    <button id="disconnect-btn">Disconnect</button>
+    <button id="reconnect-btn">Reconnect</button>
+    <my-component id="my-component"></my-component>
+    <!-- <script>
+      const disconnectBtn = document.getElementById('disconnect-btn');
+      const reconnectBtn = document.getElementById('reconnect-btn');
+      const myComponent = document.getElementById('my-component');
+      disconnectBtn.addEventListener('click', () => {
+        myComponent.myProp = 'disconnect';
+      });
+      reconnectBtn.addEventListener('click', () => {
+        myComponent.myProp = 'reconnect';
+      });
+    </script> -->
+    <script>
+      const disconnectBtn = document.getElementById('disconnect-btn');
+      const reconnectBtn = document.getElementById('reconnect-btn');
+      const myComponent = document.querySelector('my-component');
+      console.log(myComponent, disconnectBtn, reconnectBtn)
+      disconnectBtn.addEventListener('click', () => {
+        myComponent.setAttribute('my-prop', 'disconnect');
+      });
+      reconnectBtn.addEventListener('click', () => {
+        myComponent.setAttribute('my-prop', 'reconnect');
+      });
     </script>
+    <!-- <h1>Stencil  -->
   </body>
 </html>

@@ -15,15 +15,15 @@ export class Idk2 {
   @State() _currentMonth = new Date().toLocaleString('default', { month: 'long' });
   @Listen('selectedDate')
   df(e) {
+    console.log(e.detail);
     this._currentMonth = e.detail.month;
     this._monthIndex = e.detail.monthIndex + 1;
   }
-  componentDidLoad() {
-  }
+  componentDidLoad() {}
   renderHeader() {
     return (
       <header onClick={() => this.selectedMonthEvent.emit({ clicked: true, selectedMonth: this.selectedMonth, indexOfMonth: this._monthIndex })}>
-        <div style={{ cursor: 'pointer' }}>{this._currentMonth}</div>
+        <div style={{ cursor: 'pointer' }}>{this._currentMonth || 'MONTH'}</div>
       </header>
     );
   }
@@ -33,10 +33,11 @@ export class Idk2 {
         <div class="calendar">
           {this.renderHeader()}
           <div class="dropdown-month-year">
-            <idk-22 upperLimitYear={this.upperYear}limits={this.limits} currentYear={this.currentYear} currentMonth={new Date().toLocaleString('default', { month: 'long' })} />
+            <idk-22 upperLimitYear={this.upperYear} limits={this.limits} currentYear={this.currentYear} currentMonth={new Date().toLocaleString('default', { month: 'long' })} />
           </div>
         </div>
       </Host>
     );
   }
 }
+

@@ -21,6 +21,7 @@ export namespace Components {
         "upperLimitYear": number;
     }
     interface MonthWheel {
+        "limits": any;
         "month": any[];
     }
     interface MyComponent {
@@ -101,6 +102,7 @@ declare namespace LocalJSX {
         "upperLimitYear"?: number;
     }
     interface MonthWheel {
+        "limits"?: any;
         "month"?: any[];
         "onSelectedDate"?: (event: MonthWheelCustomEvent<{ monthIndex: number; month: string | number; year: string }>) => void;
     }
