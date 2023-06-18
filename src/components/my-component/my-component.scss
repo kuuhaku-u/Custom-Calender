@@ -90,7 +90,7 @@ header {
 }
 nest-notification-modal-dialog {
   &::part(notification-modal-dialog-container-) {
-    height: 325px;
+    height: 405px;
     max-height: unset;
   }
 }
@@ -104,5 +104,32 @@ header {
   opacity: 0.3;
 }
 .not-dim {
+  opacity: 1;
+}
+.container {
+  display: flex;
+  flex-wrap: wrap;
+}
+.icon::after {
+  content: attr(data-message);
+  position: absolute;
+  top: 100%;
+  z-index: 9999;
+  // transform: translateX(-50%);
+  background-color: #f8f8f8;
+  color: #333;
+  font-size: 12px;
+  padding: 4px;
+  border-radius: 4px;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s, opacity 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ccc;
+  max-height: fit-content;
+  max-width: fit-content;
+}
+.icon:hover::after {
+  visibility: visible;
   opacity: 1;
 }
