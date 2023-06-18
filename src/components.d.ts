@@ -7,42 +7,46 @@
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { CalendarEntry } from "./utils/calendar-entry";
 export namespace Components {
-    interface Idk2 {
-        "currentYear": number;
+    interface MonthWheel {
+        "hasMinMax": boolean;
         "limits": any;
+        "locale": string;
+        "month": any[];
+    }
+    interface MyComponent {
+        "calendarEndDate": string;
+        "calendarStartDate": string;
+        "hasMinMax": boolean;
+        "limitLower": number;
+        "limitUpper": number;
+        /**
+          * @props
+         */
+        "locale": string;
+        "openModal": boolean;
+        "showFillDays": boolean;
+    }
+    interface WheelContainer {
+        "calendarEndDate": string;
+        "calendarStartDate": string;
+        "currentYear": number;
+        "hasMinMax": boolean;
+        "limits": any;
+        "locale": string;
         "lowerLimitYear": any;
         "selectedMonth": any;
         "upperYear": any;
     }
-    interface Idk22 {
+    interface YearWheel {
+        "calendarEndDate": string;
+        "calendarStartDate": string;
         "currentMonth": string;
         "currentYear": number;
+        "hasMixMAx": boolean;
         "limits": any;
+        "locale": any;
         "upperLimitYear": number;
     }
-    interface MonthWheel {
-        "limits": any;
-        "month": any[];
-    }
-    interface MyComponent {
-        /**
-          * @props
-         */
-        "dayNames": any[];
-        "hasMinMax": boolean;
-        "limitLower": number;
-        "limitUpper": number;
-        "monthNames": any[];
-        "showFillDays": boolean;
-    }
-}
-export interface Idk2CustomEvent<T> extends CustomEvent<T> {
-    detail: T;
-    target: HTMLIdk2Element;
-}
-export interface Idk22CustomEvent<T> extends CustomEvent<T> {
-    detail: T;
-    target: HTMLIdk22Element;
 }
 export interface MonthWheelCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -52,19 +56,15 @@ export interface MyComponentCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLMyComponentElement;
 }
+export interface WheelContainerCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLWheelContainerElement;
+}
+export interface YearWheelCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLYearWheelElement;
+}
 declare global {
-    interface HTMLIdk2Element extends Components.Idk2, HTMLStencilElement {
-    }
-    var HTMLIdk2Element: {
-        prototype: HTMLIdk2Element;
-        new (): HTMLIdk2Element;
-    };
-    interface HTMLIdk22Element extends Components.Idk22, HTMLStencilElement {
-    }
-    var HTMLIdk22Element: {
-        prototype: HTMLIdk22Element;
-        new (): HTMLIdk22Element;
-    };
     interface HTMLMonthWheelElement extends Components.MonthWheel, HTMLStencilElement {
     }
     var HTMLMonthWheelElement: {
@@ -77,63 +77,88 @@ declare global {
         prototype: HTMLMyComponentElement;
         new (): HTMLMyComponentElement;
     };
+    interface HTMLWheelContainerElement extends Components.WheelContainer, HTMLStencilElement {
+    }
+    var HTMLWheelContainerElement: {
+        prototype: HTMLWheelContainerElement;
+        new (): HTMLWheelContainerElement;
+    };
+    interface HTMLYearWheelElement extends Components.YearWheel, HTMLStencilElement {
+    }
+    var HTMLYearWheelElement: {
+        prototype: HTMLYearWheelElement;
+        new (): HTMLYearWheelElement;
+    };
     interface HTMLElementTagNameMap {
-        "idk-2": HTMLIdk2Element;
-        "idk-22": HTMLIdk22Element;
         "month-wheel": HTMLMonthWheelElement;
         "my-component": HTMLMyComponentElement;
+        "wheel-container": HTMLWheelContainerElement;
+        "year-wheel": HTMLYearWheelElement;
     }
 }
 declare namespace LocalJSX {
-    interface Idk2 {
-        "currentYear"?: number;
-        "limits"?: any;
-        "lowerLimitYear"?: any;
-        "onSelectedMonthEvent"?: (event: Idk2CustomEvent<any>) => void;
-        "selectedMonth"?: any;
-        "upperYear"?: any;
-    }
-    interface Idk22 {
-        "currentMonth"?: string;
-        "currentYear"?: number;
-        "limits"?: any;
-        "onSelectedDate"?: (event: Idk22CustomEvent<{ monthIndex: Number; month: string | number; year: string }>) => void;
-        "onSelectedYEar"?: (event: Idk22CustomEvent<any>) => void;
-        "upperLimitYear"?: number;
-    }
     interface MonthWheel {
+        "hasMinMax"?: boolean;
         "limits"?: any;
+        "locale"?: string;
         "month"?: any[];
-        "onSelectedDate"?: (event: MonthWheelCustomEvent<{ monthIndex: number; month: string | number; year: string }>) => void;
+        "onSelectedMonthEvent"?: (event: MonthWheelCustomEvent<{ monthIndex: number; month: string | number; year: string }>) => void;
     }
     interface MyComponent {
-        /**
-          * @props
-         */
-        "dayNames"?: any[];
+        "calendarEndDate"?: string;
+        "calendarStartDate"?: string;
         "hasMinMax"?: boolean;
         "limitLower"?: number;
         "limitUpper"?: number;
-        "monthNames"?: any[];
+        /**
+          * @props
+         */
+        "locale"?: string;
         "onDayChanged"?: (event: MyComponentCustomEvent<CalendarEntry>) => void;
         "onMonthChanged"?: (event: MyComponentCustomEvent<CalendarEntry>) => void;
+        "openModal"?: boolean;
         "showFillDays"?: boolean;
     }
+    interface WheelContainer {
+        "calendarEndDate"?: string;
+        "calendarStartDate"?: string;
+        "currentYear"?: number;
+        "hasMinMax"?: boolean;
+        "limits"?: any;
+        "locale"?: string;
+        "lowerLimitYear"?: any;
+        "onCloseWheel"?: (event: WheelContainerCustomEvent<any>) => void;
+        "onCloseWheel2"?: (event: WheelContainerCustomEvent<any>) => void;
+        "selectedMonth"?: any;
+        "upperYear"?: any;
+    }
+    interface YearWheel {
+        "calendarEndDate"?: string;
+        "calendarStartDate"?: string;
+        "currentMonth"?: string;
+        "currentYear"?: number;
+        "hasMixMAx"?: boolean;
+        "limits"?: any;
+        "locale"?: any;
+        "onSelectedDate123"?: (event: YearWheelCustomEvent<{ monthIndex: number; month: string | number; year: string }>) => void;
+        "onSelectedYearEvent"?: (event: YearWheelCustomEvent<any>) => void;
+        "upperLimitYear"?: number;
+    }
     interface IntrinsicElements {
-        "idk-2": Idk2;
-        "idk-22": Idk22;
         "month-wheel": MonthWheel;
         "my-component": MyComponent;
+        "wheel-container": WheelContainer;
+        "year-wheel": YearWheel;
     }
 }
 export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "idk-2": LocalJSX.Idk2 & JSXBase.HTMLAttributes<HTMLIdk2Element>;
-            "idk-22": LocalJSX.Idk22 & JSXBase.HTMLAttributes<HTMLIdk22Element>;
             "month-wheel": LocalJSX.MonthWheel & JSXBase.HTMLAttributes<HTMLMonthWheelElement>;
             "my-component": LocalJSX.MyComponent & JSXBase.HTMLAttributes<HTMLMyComponentElement>;
+            "wheel-container": LocalJSX.WheelContainer & JSXBase.HTMLAttributes<HTMLWheelContainerElement>;
+            "year-wheel": LocalJSX.YearWheel & JSXBase.HTMLAttributes<HTMLYearWheelElement>;
         }
     }
 }

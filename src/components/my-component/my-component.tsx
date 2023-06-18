@@ -1,6 +1,6 @@
 import { Component, Prop, h, Watch, EventEmitter, State, Event, Host, Fragment, Listen } from '@stencil/core';
 import { CalendarEntry } from '../../utils/calendar-entry';
-import { Calendar, addDays, compareDates, limitsDate, limitsMonth, limitsYear, subDays } from '../../utils/calendar';
+import { Calendar, addDays, compareDates, limitsDate, limitsMonth, limitsYear, monthNumber, subDays } from '../../utils/calendar';
 import '@tec-registry/nest-notification-modal-dialog';
 @Component({
   tag: 'my-component',
@@ -11,22 +11,25 @@ export class MyComponent {
   /**
    * @props
    */
-  @Prop() dayNames = [];
-  @Prop() monthNames = [];
-  @Prop() showFillDays = true;
-  @Prop() limitLower = 229;
+  @Prop() locale = 'en-NZ';
+  @Prop() showFillDays = false;
+  @Prop() limitLower = 28;
   @Prop() hasMinMax = true;
-  @Prop() limitUpper = 276;
+  @Prop() limitUpper = 31;
+  @Prop() calendarEndDate = '2050-12-12';
+  @Prop() calendarStartDate = '2000-01-01';
+  @Prop() openModal = true;
   /**
    * @states
    */
+  @State() dayNames = [];
+  @State() monthNames = [];
   @State() date = Calendar.getToday();
   @State() daysInMonth: number[];
   @State() selectedDate: CalendarEntry;
   @State() eventDates = [];
   @State() disableCrossForArrowForward = false;
   @State() disableCrossForArrowBackward = false;
-  @State() openModal = false;
   @State() showTheWheel = false;
   @Event({
     eventName: 'dayChanged',
@@ -44,9 +47,9 @@ export class MyComponent {
   monthChanged: EventEmitter<CalendarEntry>;
   private _fillStartCount: number;
   private _fillEndCount: number;
-  readonly _today: CalendarEntry;
-  private isUpperLieInSameYear: boolean;
-  private isLowerLieInSameYear: boolean;
+  readonly today: CalendarEntry;
+  private _isUpperLieInSameYear: boolean;
+  private _isLowerLieInSameYear: boolean;
   private _lowerLimitDate: any;
   private _upperLimit: any;
   private _lowerLimit: any;
@@ -55,10 +58,10 @@ export class MyComponent {
   private _ulDateArr: any[] = [];
   private _upperLimitMonth: any;
   private _lowerLimitMonth: any;
-  _upperLimitYear: number;
-  _lowerLimitYear: number;
+  private _upperLimitYear: number;
+  private _lowerLimitYear: number;
   constructor() {
-    this._today = Calendar.getToday();
+    this.today = Calendar.getToday();
   }
   /**
    *
@@ -69,6 +72,24 @@ export class MyComponent {
   watchDate(date: CalendarEntry): void {
     if ('month' in date && 'year' in date) {
       this.selectedDate = date;
+    }
+  }
+  componentDidLoad() {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    this.monthNames = Array.from({ length: 12 }, (_, month) => {
+      const date = new Date(2023, month);
+      return date.toLocaleString(this.locale, { month: 'long' });
+    });
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    this.dayNames = Array.from({ length: 7 }, (_, day) => {
+      const date = new Date(2023, 0, day + 1);
+      const dayName = date.toLocaleString(this.locale, { weekday: 'long' });
+      return dayName.slice(0, 2);
+    });
+    const sundayIndex = this.dayNames.findIndex(day => day === 'Su');
+    if (sundayIndex > -1) {
+      this.dayNames.splice(sundayIndex, 1);
+      this.dayNames.push('Su');
     }
   }
   /**
@@ -88,8 +109,8 @@ export class MyComponent {
       this._lowerLimitDate = limitsDateResult.lowerLimitDate;
       this._upperLimitYear = limitsYearResult.upperLimitYear;
       this._lowerLimitYear = limitsYearResult.lowerLimitYear;
-      this.isUpperLieInSameYear = this._upperLimitYear === new Date().getFullYear();
-      this.isLowerLieInSameYear = this._lowerLimitYear === new Date().getFullYear();
+      this._isUpperLieInSameYear = this._upperLimitYear === new Date().getFullYear();
+      this._isLowerLieInSameYear = this._lowerLimitYear === new Date().getFullYear();
       this.setCalendarDetails();
       if (this._currentMonth === this._upperLimitMonth && this._currentMonth === this._lowerLimitMonth) {
         this.disableCrossForArrowForward = true;
@@ -149,41 +170,41 @@ export class MyComponent {
     if (this.hasMinMax) {
       const upperLimit = addDays(new Date(), this.limitUpper).getMonth() + 1;
       const lowerLimit = subDays(new Date(), this.limitLower).getMonth() + 1;
-      if (!this.isLowerLieInSameYear && !this.isUpperLieInSameYear) {
+      if (!this._isLowerLieInSameYear && !this._isUpperLieInSameYear) {
         if (this.date?.month <= lowerLimit && this.date.year === this._lowerLimitYear) {
           this.date.month = lowerLimit;
-          return;
+          // return;
         }
         if (this.date?.month >= upperLimit && this.date.year === this._upperLimitYear) {
           this.date.month = upperLimit;
-          return;
+          // return;
         }
-      } else if (this.isUpperLieInSameYear && this.isLowerLieInSameYear) {
+      } else if (this._isUpperLieInSameYear && this._isLowerLieInSameYear) {
         if (this.date?.month > upperLimit) {
           this.date.month = upperLimit;
-          return;
+          // return;
         }
         if (this.date?.month < lowerLimit) {
           this.date.month = lowerLimit;
-          return;
+          // return;
         }
-      } else if (this.isUpperLieInSameYear && !this.isLowerLieInSameYear) {
+      } else if (this._isUpperLieInSameYear && !this._isLowerLieInSameYear) {
         if (this.date?.month > upperLimit && this.date.year === new Date().getFullYear()) {
           this.date.month = upperLimit;
-          return;
+          // return;
         }
         if (this.date?.month <= this._lowerLimitMonth && this.date.year === this._lowerLimitYear) {
           this.date.month = lowerLimit;
-          return;
+          // return;
         }
-      } else if (!this.isUpperLieInSameYear && this.isLowerLieInSameYear) {
+      } else if (!this._isUpperLieInSameYear && this._isLowerLieInSameYear) {
         if (this.date?.month >= this._upperLimitMonth && this.date.year === this._upperLimitYear) {
           this.date.month = this._upperLimitMonth;
-          return;
+          // return;
         }
         if (this.date?.month < lowerLimit && this.date.year === new Date().getFullYear()) {
           this.date.month = lowerLimit;
-          return;
+          // return;
         }
       }
     }
@@ -200,22 +221,22 @@ export class MyComponent {
   getValidDate(): CalendarEntry {
     let date = this.date;
     if (this.hasMinMax) {
-      if (this.isUpperLieInSameYear && this.isLowerLieInSameYear) {
+      if (this._isUpperLieInSameYear && this._isLowerLieInSameYear) {
         if (this.date?.month > this._upperLimitMonth || this.date?.month < this._lowerLimitMonth) {
           return date;
         }
-      } else if (this.isUpperLieInSameYear && !this.isLowerLieInSameYear) {
+      } else if (this._isUpperLieInSameYear && !this._isLowerLieInSameYear) {
         if ((this.date?.month > this._lowerLimitMonth && this.date.year === this._lowerLimitYear) || this.date?.month > this._upperLimitMonth) {
           return date;
         }
-      } else if (!this.isUpperLieInSameYear && this.isLowerLieInSameYear) {
+      } else if (!this._isUpperLieInSameYear && this._isLowerLieInSameYear) {
         if ((this.date?.month < this._upperLimitMonth && this.date.year === this._upperLimitYear) || this.date?.month < this._lowerLimitMonth) {
           return date;
         }
       }
     }
     if (!('month' in this.date && 'year' in this.date)) {
-      date = this._today;
+      date = this.today;
     }
     return date;
   }
@@ -235,7 +256,7 @@ export class MyComponent {
         console.warn('NOT VALID DATE');
       }
     } else {
-      this.dayChangedHandler(this.selectedDate);
+      this.dayChanged.emit(calendarEntry);
     }
   }
   /**
@@ -255,6 +276,9 @@ export class MyComponent {
    * @function prv_month
    */
   switchToPreviousMonth = (): void => {
+    if (this.disableCrossForArrowBackward) {
+      return;
+    }
     this.date = this.getValidDate();
     const { month, year } = this.date;
     if (month !== 1) {
@@ -268,16 +292,16 @@ export class MyComponent {
     }
     if (this.hasMinMax) {
       const isLowerLimitSameYear = this.isLowerLieInSameYearFun();
-      const isLowerLimitReached = month === this._lowerLimitMonth && year === this._lowerLimitYear;
+      const isLowerLimitReached = month === this._lowerLimitMonth + 1 && year === this._lowerLimitYear;
       if (isLowerLimitSameYear && isLowerLimitReached) {
+        this.disableCrossForArrowForward = false;
+        this.disableCrossForArrowBackward = true;
         const searchValue = 1;
         const indices = this.getIndicesOfValue(this.daysInMonth, searchValue);
         this._ulDateArr = this.daysInMonth.slice(indices[0], indices[1]);
         const indexOfLimit = this._ulDateArr.indexOf(this._lowerLimitDate);
         this._ulDateArr = this._ulDateArr.splice(0, indexOfLimit);
         this.setCalendarDetails();
-        this.disableCrossForArrowForward = false;
-        this.disableCrossForArrowBackward = true;
       } else if (!isLowerLimitSameYear && isLowerLimitReached) {
         this.disableCrossForArrowBackward = true;
         const searchValue = 1;
@@ -300,6 +324,9 @@ export class MyComponent {
   };
   switchToNextMonth = (): void => {
     this.date = this.getValidDate();
+    if (this.disableCrossForArrowForward) {
+      return;
+    }
     if (this.date.month !== 12) {
       this.date.month += 1;
     } else {
@@ -311,12 +338,13 @@ export class MyComponent {
       const isUpperLimitSameYear = this.isUpperLieInSameYearFun();
       const isUpperLimitReached = this.date.month === this._upperLimitMonth && this.date.year === this._upperLimitYear;
       if (isUpperLimitSameYear && isUpperLimitReached) {
+        this.disableCrossForArrowForward = true;
+        this.setCalendarDetails();
         const searchValue = 1;
         const indices = this.getIndicesOfValue(this.daysInMonth, searchValue);
         this._ulDateArr = this.daysInMonth.slice(indices[0], indices[1]);
         const indexOfLimit = this._ulDateArr.indexOf(this._upperLimitDate);
         this._ulDateArr = this._ulDateArr.splice(indexOfLimit + 1);
-        this.disableCrossForArrowForward = true;
       } else if (!isUpperLimitSameYear && isUpperLimitReached) {
         const searchValue = 1;
         const indices = this.getIndicesOfValue(this.daysInMonth, searchValue);
@@ -357,33 +385,80 @@ export class MyComponent {
    * @listeners
    *
    */
-  @Listen('selectedMonthEvent')
+  @Listen('closeWheel2')
+  wheelListener2(e) {
+    this.showTheWheel = !e.detail;
+  }
+  @Listen('closeWheel')
   wheelListener(e) {
-    this.showTheWheel = false;
-    this.date.month = e.detail.indexOfMonth;
+    const monthIndex = monthNumber(e.detail.selectedMonth);
+    this.date.month = monthIndex;
+    this.date.year = parseInt(e.detail.year);
     this.setCalendarDetails();
-    const isLowerLimitReached = this.date.month === this._lowerLimitMonth && this.date.year === 2023;
+    const isLowerLimitReached = this.date.month === this._lowerLimitMonth;
     const isUpperLimitReached = this.date.month === this._upperLimitMonth;
-    if (this._currentMonth >= e.detail.indexOfMonth) {
-      if (isLowerLimitReached) {
-        const searchValue = 1;
-        const indices = this.getIndicesOfValue(this.daysInMonth, searchValue);
-        this._ulDateArr = this.daysInMonth.slice(indices[0], indices[1]);
-        const indexOfLimit = this._ulDateArr.indexOf(this._lowerLimitDate);
-        this._ulDateArr = this._ulDateArr.splice(0, indexOfLimit);
-      } else {
-        this._ulDateArr = [];
-      }
-    } else {
+    if (this._isUpperLieInSameYear && this.date.year == new Date().getFullYear()) {
       if (isUpperLimitReached) {
         this.disableCrossForArrowForward = true;
+        this.disableCrossForArrowBackward = false;
         const searchValue = 1;
         const indices = this.getIndicesOfValue(this.daysInMonth, searchValue);
         this._ulDateArr = this.daysInMonth.slice(indices[0], indices[1]);
         const indexOfLimit = this._ulDateArr.indexOf(this._upperLimitDate);
         this._ulDateArr = this._ulDateArr.splice(indexOfLimit + 1);
       } else {
+        this.disableCrossForArrowForward = false;
+        this.disableCrossForArrowBackward = false;
         this._ulDateArr = [];
+      }
+    }
+    if (this.date.year == this._upperLimitYear && this.date.month == this._upperLimitMonth) {
+      if (isUpperLimitReached) {
+        this.disableCrossForArrowForward = true;
+        this.disableCrossForArrowBackward = false;
+        const searchValue = 1;
+        const indices = this.getIndicesOfValue(this.daysInMonth, searchValue);
+        this._ulDateArr = this.daysInMonth.slice(indices[0], indices[1]);
+        const indexOfLimit = this._ulDateArr.indexOf(this._upperLimitDate);
+        this._ulDateArr = this._ulDateArr.splice(indexOfLimit + 1);
+      } else {
+        this.disableCrossForArrowForward = false;
+        this.disableCrossForArrowBackward = false;
+        this._ulDateArr = [];
+      }
+    }
+    if (this._isLowerLieInSameYear && this.date.year == new Date().getFullYear()) {
+      if (this._currentMonth >= this.date.month) {
+        if (isLowerLimitReached) {
+          this.disableCrossForArrowBackward = true;
+          this.disableCrossForArrowForward = false;
+          const searchValue = 1;
+          const indices = this.getIndicesOfValue(this.daysInMonth, searchValue);
+          this._ulDateArr = this.daysInMonth.slice(indices[0], indices[1]);
+          const indexOfLimit = this._ulDateArr.indexOf(this._lowerLimitDate);
+          this._ulDateArr = this._ulDateArr.splice(0, indexOfLimit);
+        } else {
+          this.disableCrossForArrowForward = false;
+          this.disableCrossForArrowBackward = false;
+          this._ulDateArr = [];
+        }
+      }
+    }
+    if (this.date.year == this._lowerLimitYear && this.date.month == this._lowerLimitMonth) {
+      if (this._currentMonth >= this.date.month) {
+        if (isLowerLimitReached) {
+          this.disableCrossForArrowBackward = true;
+          this.disableCrossForArrowForward = false;
+          const searchValue = 1;
+          const indices = this.getIndicesOfValue(this.daysInMonth, searchValue);
+          this._ulDateArr = this.daysInMonth.slice(indices[0], indices[1]);
+          const indexOfLimit = this._ulDateArr.indexOf(this._lowerLimitDate);
+          this._ulDateArr = this._ulDateArr.splice(0, indexOfLimit);
+        } else {
+          this.disableCrossForArrowForward = false;
+          this.disableCrossForArrowBackward = false;
+          this._ulDateArr = [];
+        }
       }
     }
   }
@@ -392,7 +467,7 @@ export class MyComponent {
    *
    */
   getDigitClassNames = (day: number, month: number, year: number, index: number): string => {
-    let classNameDigit = [];
+    const classNameDigit = [];
     if (day.toString().length === 1) {
       classNameDigit.push('padding-single-digit');
     }
@@ -409,11 +484,7 @@ export class MyComponent {
   };
   isToday(day: number, month: number, year: number, index: number): boolean {
     return (
-      this._today.day === day &&
-      this._today.month === month &&
-      this._today.year === year &&
-      this._today.year === year &&
-      !(index < this._fillStartCount || index >= this._fillEndCount)
+      this.today.day === day && this.today.month === month && this.today.year === year && this.today.year === year && !(index < this._fillStartCount || index >= this._fillEndCount)
     );
   }
   isSelectedDay(day: number, index: number) {
@@ -434,27 +505,28 @@ export class MyComponent {
   }
   /**
    *
-   * @returns
-   * @_______HTML
+   * @returns {HTML}
    */
   renderArrows() {
     return (
-      <div part="calender-part-arrows" style={{ width: '50px', display: 'flex' }}>
+      <div part="calender-part-arrows" style={{ width: '50px', display: 'flex', cursor: 'pointer' }}>
         <div onClick={this.switchToPreviousMonth} style={{ opacity: this.disableCrossForArrowBackward ? '.3' : '1  ', width: '25px' }} part="calender-part-arrows-left">
           {'<'}
+          {/* <i class="n-icon-prev-arrow" aria-hidden="true"></i> */}
         </div>
         <div onClick={this.switchToNextMonth} style={{ opacity: this.disableCrossForArrowForward ? '.3' : '1', width: '25px' }} part="calender-part-arrows-right">
           {'>'}
+          {/* <i class="n-icon-next-arrow" aria-hidden="true"></i> */}
         </div>
       </div>
     );
   }
-  renderHeader(date) {
+  renderHeader() {
     return (
       <header part="full-calender-part">
         <div part="calender-part-icons">
           <div onClick={() => (this.showTheWheel = true)} style={{ cursor: 'pointer' }} part="calender-part-month-name">
-            {this.monthNames[date?.month - 1]} , {this.date.year}
+            {this.monthNames[this.date.month - 1]} {this.date.year}
           </div>
         </div>
         {this.renderArrows()}
@@ -468,7 +540,11 @@ export class MyComponent {
     return this.daysInMonth.map((day, index) => {
       const classNameDigit = this.getDigitClassNames(day, date.month, date.year, index);
       if (index < this._fillStartCount || index >= this._fillEndCount) {
-        return <span class="disabled">{this.showFillDays ? day : ''}</span>;
+        return (
+          <span class="disabled" part="calender-move-property-part-disabled">
+            {this.showFillDays ? day : ''}
+          </span>
+        );
       } else {
         return (
           <span onClick={() => this.daySelectedHandler(day)} part="calender-part-day-name-span">
@@ -484,7 +560,7 @@ export class MyComponent {
     const date = this.getValidDate();
     return (
       <div class="calendar material" part="calender-container-part">
-        {this.renderHeader(date)}
+        {this.renderHeader()}
         <div class="day-names" part="calender-part-day-name-container">
           {this.renderDayName()}
         </div>
@@ -497,40 +573,41 @@ export class MyComponent {
   renderCalendarWheel() {
     return (
       <div>
-        <idk-2 selectedMonth="June" limits={{ upper: this._upperLimit, lower: this._lowerLimit }} upperYear={this._upperLimitYear} lowerLimitYear={this._lowerLimitYear} />
+        <wheel-container
+          locale={this.locale}
+          calendarEndDate={this.calendarEndDate}
+          calendarStartDate={this.calendarStartDate}
+          hasMinMax={this.hasMinMax}
+          selectedMonth="June"
+          limits={{ upper: this._upperLimit, lower: this._lowerLimit }}
+          upperYear={this._upperLimitYear}
+          lowerLimitYear={this._lowerLimitYear}
+        />
       </div>
     );
   }
   renderModalContent() {
     return (
-      <div class="all" part="calender-move-property-part" onMouseLeave={() => (this.openModal = false)}>
+      <div class="all" part="calender-move-property-part">
         {this.openModal && <Fragment>{!this.showTheWheel ? this.renderFullCalendar() : this.renderCalendarWheel()}</Fragment>}
       </div>
     );
   }
-  private _refModal;
+  @Listen('backgroundClick')
+  handleNotificationModalClose() {
+    this.openModal = false;
+  }
   renderModal() {
     return (
-      <nest-notification-modal-dialog ref={e => (this._refModal = e)} onFocus={() => console.log('L')} open={this.openModal}>
+      <nest-notification-modal-dialog id="nest-calendar" open={this.openModal}>
         {this.renderModalContent()}
       </nest-notification-modal-dialog>
     );
   }
-  focusFun() {
-    this._refModal;
-    this.openModal = true;
-  }
   render() {
     return (
       <Host>
-        Upper : {this._upperLimitDate} / {this._upperLimitMonth} / {this._upperLimitYear}
-        <br />
-        Lower : {this._lowerLimitDate} / {this._lowerLimitMonth} / {this._lowerLimitYear}
-        <br />
-        Date : {this.date?.day} / {this.date?.month} / {this.date?.year}
-        <br />
-        <button onClick={() => this.focusFun()}>Click</button>
-        {this.renderModal()}
+        <slot>{this.renderModal()}</slot>
       </Host>
     );
   }

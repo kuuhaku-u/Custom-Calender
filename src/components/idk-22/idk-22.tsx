@@ -1,71 +1,76 @@
-import { Component, Event, EventEmitter, h, Host, Prop, State, Watch } from '@stencil/core';
+import { Component, EventEmitter, Host, State, Watch, h, Event, Prop, Listen } from '@stencil/core';
 import { calculateYears, getMonthsBetweenDates } from '../../utils/calendar';
 @Component({
-  tag: 'idk-22',
+  tag: 'year-wheel',
   styleUrl: 'idk-22.scss',
   shadow: true,
 })
-export class Idk22 {
+export class YearWheel {
   @Prop() limits: any;
+  @Prop() locale: any;
+  @Prop() hasMixMAx = false;
+  @Prop() calendarEndDate = '2050-12-12';
+  @Prop() calendarStartDate = '2000-01-01';
   @Prop() upperLimitYear = 2024;
-  @State() monthArray: any[] = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  @State() monthArray: any[] = [' ', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', ' '];
   @Prop() currentYear = 2023;
+  @State() yearArray = [];
   @Prop() currentMonth = 'June';
   @State() month: any[];
   @State() hour: string | number = 'June';
-  @State() ampm: any = new Date().getFullYear();
-  @State() prvYear: any[] = [];
-  @State() nxtYear: any[] = [];
-  @Event() selectedDate: EventEmitter<{ monthIndex: Number; month: string | number; year: string }>;
-  @Event({ bubbles: true, composed: true }) selectedYEar: EventEmitter<any>;
-  private year = [];
+  @State() selectedYear: number = new Date().getFullYear();
+  @Event() selectedDate123: EventEmitter<{ monthIndex: number; month: string | number; year: string }>;
+  @Event({ bubbles: true, composed: true }) selectedYearEvent: EventEmitter<any>;
+  private _year = [];
   childElementsYear: unknown = [];
   yearSelRef?: HTMLElement;
   yearSelRefScroll?: HTMLElement;
   @State() currentYearCheck = new Date().getFullYear();
+  @Listen('selectedMonthEvent')
+  ik(e) {
+    this.hour = e.detail.month;
+    this.selectedDate123.emit({ monthIndex: this.monthArray.indexOf(this.hour), month: this.hour, year: this.selectedYear.toString() });
+  }
   connectedCallback() {
     this.setAllArray();
-    this.year = calculateYears(this.limits.lower, this.limits.upper);
-    this.year.push(this.upperLimitYear);
-    const yearSet = new Set(this.year);
-    this.year = Array.from(yearSet);
-    this.year.push(' ');
-    this.year.unshift(' ');
+    this.yearArray = calculateYears(new Date(this.calendarStartDate), new Date(this.calendarEndDate));
+    this.yearArray.push(' ');
+    this.yearArray.unshift(' ');
+    this._year = calculateYears(new Date(this.limits.lower), new Date(this.limits.upper));
+    this._year.push(this.upperLimitYear);
+    const yearSet = new Set(this._year);
+    this._year = Array.from(yearSet);
+    this._year.push(' ');
+    this._year.unshift(' ');
   }
   componentDidLoad() {
     this.initialScrollToActiveValue();
     const options = {
-      ampm: {
+      year: {
         root: this.yearSelRefScroll,
         threshold: 0.8,
       },
     };
-    /* ----------------------------------
-            OBSERVERS callback
-    -----------------------------------*/
     const callbackMeridianIO = entries => {
-      this.callBackHelper(entries, meridianElements, this.year, 'year');
+      this.callBackHelper(entries, meridianElements, this.hasMixMAx ? this._year : this.yearArray);
     };
-    /* ----------------------------------
-            Set what to Observe on
-    -----------------------------------*/
     const ampmObserver = this.yearSelRefScroll.querySelector('.scrollport').querySelectorAll('.cell');
     const meridianElements = this.childElementsYear;
-    const ampmObserve = new IntersectionObserver(callbackMeridianIO, options.ampm);
+    const ampmObserve = new IntersectionObserver(callbackMeridianIO, options.year);
     ampmObserver.forEach(el => {
       ampmObserve.observe(el);
     });
   }
-  @Watch('ampm')
-  emitAMPM() {
+  @Watch('selectedYear')
+  emitSelectedDate() {
     this.someFun();
-    this.setClassSelected(this.childElementsYear, this.ampm);
-    this.selectedYEar.emit({ year: this.ampm });
-    this.selectedDate.emit({ monthIndex: this.monthArray.indexOf(this.hour), month: this.hour, year: this.ampm });
+    this.setClassSelected(this.childElementsYear, this.selectedYear);
+    this.selectedYearEvent.emit({ year: this.selectedYear });
+    this.selectedDate123.emit({ monthIndex: this.monthArray.indexOf(this.hour), month: this.hour, year: this.selectedYear.toString() });
   }
   setAllArray() {
-    this.month = getMonthsBetweenDates(this.limits.lower, this.limits.upper)
-      .filter(e => e.includes(this.ampm))
+    this.month = getMonthsBetweenDates(this.limits.lower, this.limits.upper, this.locale)
+      .filter(e => e.includes(this.selectedYear))
       .map(e => e.split(' ')[0].toString());
     this.month.push(' ');
     this.month.unshift(' ');
@@ -88,20 +93,20 @@ export class Idk22 {
       console.warn('error : ', error);
     }
   }
-  forYEar() {
+  forYear() {
     const cells = this.yearSelRefScroll.querySelectorAll('.cell');
     this.childElementsYear = cells;
   }
   dateSetter(data) {
-    this.ampm = data;
+    this.selectedYear = data;
   }
-  helperFunForObservers(entry, arr, elToFindFrom, type) {
+  helperFunForObservers(entry, arr, elToFindFrom) {
     if (!entry || !entry.target) {
       return;
     }
     const pos = this.yearSelRefScroll;
     const elGBC = pos.getBoundingClientRect();
-    const containerTop = elGBC.top;
+    const containerTop = elGBC?.top;
     const elTop = entry.boundingClientRect.top;
     const len = arr.length;
     if (entry.isIntersecting) {
@@ -117,37 +122,37 @@ export class Idk22 {
       }
     }
   }
-  callBackHelper(entries, arr, elArr, type) {
+  callBackHelper(entries, arr, elArr) {
     entries.forEach(entry => {
       if (entry === undefined || entry === null) {
         return undefined;
       }
-      this.helperFunForObservers(entry, arr, elArr, type);
+      this.helperFunForObservers(entry, arr, elArr);
     });
   }
   someFun() {
-    if (parseInt(this.ampm) > new Date().getFullYear()) {
+    if (Number(this.selectedYear) > new Date().getFullYear()) {
       this.month = this.setAllArray();
-    } else if (parseInt(this.ampm) < new Date().getFullYear()) {
+    } else if (Number(this.selectedYear) < new Date().getFullYear()) {
       this.month = this.setAllArray();
     } else {
       this.month = this.setAllArray();
     }
   }
   initialScrollToActiveValue() {
-    const yearIndex = this.year.indexOf(new Date().getUTCFullYear()) - 1;
+    const yearIndex = this.hasMixMAx ? this._year.indexOf(new Date().getUTCFullYear()) - 1 : this.yearArray.indexOf(new Date().getUTCFullYear()) - 2;
     this.yearSelRefScroll.querySelector('.scrollport').scrollTo({
       top: 33 * yearIndex,
       behavior: 'smooth',
     });
-    this.forYEar();
+    this.forYear();
   }
   forYearWheel = (arr, selection) => {
     return arr.map((time, index) => (
       <div
         id={`year_cell_${index}_id`}
         style={{ opacity: time == selection ? '1' : '.3' }}
-        part={`year-cell-${time === this.ampm ? 'selected-part' : 'not-selected-part'}`}
+        part={`year-cell-${time === this.selectedYear ? 'selected-part' : 'not-selected-part'}`}
         aria-label={time}
         class={`cell  ${time === selection && 'selected'} `}
         ref={el => {
@@ -167,13 +172,10 @@ export class Idk22 {
   renderWheel() {
     return (
       <div class="wheels" id="wheel">
-        <div>
-
-        <month-wheel month={this.month} limits={this.limits} />
-        </div>
-        <div class="ampm" id="ampm_id" ref={el => (this.yearSelRefScroll = el as HTMLElement)}>
-          <div class="scrollport" id="ampm_scrollport">
-            {this.forYearWheel(this.year, this.ampm)}
+        <month-wheel limits={this.limits} hasMinMax={this.hasMixMAx} month={this.hasMixMAx ? this.month : this.monthArray} />
+        <div class="year" id="year_id" ref={el => (this.yearSelRefScroll = el as HTMLElement)}>
+          <div class="scrollport" id="year_scrollport">
+            {this.forYearWheel(this.hasMixMAx ? this._year : this.yearArray, this.selectedYear)}
           </div>
         </div>
       </div>

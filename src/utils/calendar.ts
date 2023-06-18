@@ -1,4 +1,7 @@
+/* eslint-disable func-style */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { CalendarEntry } from './calendar-entry';
+const monthName = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 export class Calendar {
   readonly year: number;
   readonly month: number;
@@ -6,62 +9,63 @@ export class Calendar {
   readonly daysInCalendarWithFourRows = 35;
   readonly daysInCalendarWithThreeRows = 28;
   public daysInCalendar = this.daysInCalendarWithFourRows;
-  private fillStartCount = 0;
-  private fillEndCount = 0;
-  private currentMonthCount: number;
-  private fillCount = [6, 0, 1, 2, 3, 4, 5];
+  private _fillStartCount = 0;
+  private _fillEndCount = 0;
+  private _currentMonthCount: number;
+  private _fillCount = [6, 0, 1, 2, 3, 4, 5];
   constructor(year: number, month: number) {
     this.year = year;
     this.month = month;
   }
   public getCalendarDays(): number[] {
-    const daysOfCurrentMonth = this.getDaysOfCurrentMonth();
-    const fillStartCount = this.fillCount[this.getFirstDayOfMonth()];
+    const daysOfCurrentMonth = this._getDaysOfCurrentMonth();
+    const fillStartCount = this._fillCount[this.getFirstDayOfMonth()];
     const fillEndCount = this.daysInCalendarWithFourRows - (daysOfCurrentMonth.length + fillStartCount);
-    this.currentMonthCount = daysOfCurrentMonth.length;
-    this.fillStartCount = fillStartCount;
-    this.fillEndCount = fillEndCount;
-    const fillStart = fillStartCount > 0 ? this.getDaysOfLastMonth(fillStartCount) : [];
-    const fillEnd = this.getDaysOfNextMonth(fillEndCount);
+    this._currentMonthCount = daysOfCurrentMonth.length;
+    this._fillStartCount = fillStartCount;
+    this._fillEndCount = fillEndCount;
+    const fillStart = fillStartCount > 0 ? this._getDaysOfLastMonth(fillStartCount) : [];
+    const fillEnd = this._getDaysOfNextMonth(fillEndCount);
     return fillStart.concat(daysOfCurrentMonth).concat(fillEnd);
   }
-  private getDaysOfCurrentMonth(): number[] {
-    return this.getDaysOfMonth(this.month);
+  private _getDaysOfCurrentMonth(): number[] {
+    return this._getDaysOfMonth(this.month);
   }
-  private getDaysOfLastMonth(fillStartCount: number): number[] {
-    const daysOfMonth = this.getDaysOfMonth(this.month - 1);
+  private _getDaysOfLastMonth(fillStartCount: number): number[] {
+    const daysOfMonth = this._getDaysOfMonth(this.month - 1);
     return daysOfMonth.slice(-fillStartCount);
   }
-  private getDaysOfNextMonth(endCount: number): number[] {
-    const daysOfMonth = this.getDaysOfMonth(this.month + 1);
+  private _getDaysOfNextMonth(endCount: number): number[] {
+    const daysOfMonth = this._getDaysOfMonth(this.month + 1);
     let slicedDays;
     if (endCount <= -1) {
-      endCount = this.daysInCalendarWithFiveRows - (this.currentMonthCount + this.fillStartCount);
+      endCount = this.daysInCalendarWithFiveRows - (this._currentMonthCount + this._fillStartCount);
       slicedDays = daysOfMonth.slice(0, endCount);
       this.daysInCalendar = this.daysInCalendarWithFiveRows;
-      this.fillEndCount = endCount;
-    } else if (endCount === 7 && this.currentMonthCount + this.fillStartCount === 28) {
-      endCount = this.daysInCalendarWithThreeRows - (this.currentMonthCount + this.fillStartCount);
+      this._fillEndCount = endCount;
+    } else if (endCount === 7 && this._currentMonthCount + this._fillStartCount === 28) {
+      endCount = this.daysInCalendarWithThreeRows - (this._currentMonthCount + this._fillStartCount);
       slicedDays = daysOfMonth.slice(0, endCount);
       this.daysInCalendar = this.daysInCalendarWithThreeRows;
-      this.fillEndCount = endCount;
+      this._fillEndCount = endCount;
     } else {
       slicedDays = daysOfMonth.slice(0, endCount);
     }
     return slicedDays;
   }
-  private getDaysOfMonth(month: number): number[] {
+  private _getDaysOfMonth(month: number): number[] {
     const daysOfMonth = new Date(this.year, month, 0).getDate();
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     return Array.from({ length: daysOfMonth }, (_, i) => i + 1);
   }
   public getFirstDayOfMonth(): number {
     return new Date(this.year, this.month - 1, 1).getDay();
   }
   public getFillStartCount(): number {
-    return this.fillStartCount;
+    return this._fillStartCount;
   }
   public getFillEndCount(): number {
-    return this.fillEndCount;
+    return this._fillEndCount;
   }
   public addDays(date: Date, days: number | string): Date {
     date.setDate(date.getDate() + parseInt(days as any));
@@ -121,18 +125,22 @@ export function calculateYears(startDate, endDate) {
   for (let i = 0; i <= years; i++) {
     yearArray.push(startYear + i);
   }
-  return  yearArray;
+  return yearArray;
 }
-export function getMonthsBetweenDates(startDate, endDate) {
-  let start = new Date(startDate);
-  let end = new Date(endDate);
-  let months = [];
-  while (start <= end) {
-    let month = start.toLocaleString('default', { month: 'long' });
-    let year = start.getFullYear();
-    let formattedMonth = month + ' ' + year;
+export function getMonthsBetweenDates(startDate, endDate, locale) {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const months = [];
+  while (start.getMonth() <= end.getMonth() || start.getFullYear() < end.getFullYear()) {
+    const month = start.toLocaleString(locale, { month: 'long' });
+    const year = start.getFullYear();
+    const formattedMonth = month + ' ' + year;
     months.push(formattedMonth);
     start.setMonth(start.getMonth() + 1);
   }
   return months;
+}
+export function monthNumber(month: string): number {
+  const monthIndex = monthName.indexOf(month) + 1;
+  return monthIndex;
 }
