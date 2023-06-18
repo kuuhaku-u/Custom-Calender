@@ -23,6 +23,10 @@ export class MyComponent {
    * @states
    */
   @State() dayNames = [];
+  @State() meetInfo = [
+    { day: 19, month: 6, year: 2023, info: 'SOME TASK' },
+    { day: 25, month: 6, year: 2023, info: 'SOME TASK #2' },
+  ];
   @State() monthNames = [];
   @State() date = Calendar.getToday();
   @State() daysInMonth: number[];
@@ -536,6 +540,13 @@ export class MyComponent {
   renderDayName() {
     return this.dayNames.map(dayName => <span part="calender-part-day-name">{dayName}</span>);
   }
+  @State() msg = '';
+  handleMouse(ee) {
+    const isThere = this.meetInfo.find(e => e.day == ee.innerHTML);
+    if (isThere) {
+      this.msg = isThere.info;
+    }
+  }
   renderMonthDays(date) {
     return this.daysInMonth.map((day, index) => {
       const classNameDigit = this.getDigitClassNames(day, date.month, date.year, index);
@@ -548,7 +559,13 @@ export class MyComponent {
       } else {
         return (
           <span onClick={() => this.daySelectedHandler(day)} part="calender-part-day-name-span">
-            <i part="calender-part-day-name-i" class={`${classNameDigit} ${this.isDisabled(day)}`}>
+            <i
+              part="calender-part-day-name-i"
+              class={` ${this.meetInfo.find(e => e.day == day) && ' icon'} ${classNameDigit} ${this.isDisabled(day)}`}
+              key={index}
+              data-message={this.msg}
+              onMouseOver={e => this.handleMouse(e.target)}
+            >
               {day}
             </i>
           </span>
